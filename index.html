@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fire Tech Platform — Architecture &amp; Wireframe Board</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --board: #ffffff;
+    --ink: #1f2330;
+    --ink-soft: #4b5060;
+    --ink-mute: #7a7f8c;
+    --line: #e3e4e8;
+    --line-strong: #cdd0d7;
+    --accent: #c8362d;
+    --accent-soft: #fdecea;
+    --blue: #2b59c3;
+    --blue-soft: #e8efff;
+    --green: #2f7d4f;
+    --green-soft: #e6f4eb;
+    --amber: #b8730f;
+    --amber-soft: #fdf1dd;
+    --purple: #6b3fa0;
+    --purple-soft: #f0e9fa;
+    --slate: #3a4256;
+    --slate-soft: #eef0f4;
+    --sticky: #fff5b0;
+    --sticky-edge: #f0e58a;
+    --shadow: 0 1px 2px rgba(15,18,30,0.04), 0 2px 8px rgba(15,18,30,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0) 0 0 / 22px 22px,
+      var(--bg);
+    line-height: 1.45;
+    font-size: 13px;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .toolbar .brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+  .toolbar .brand strong { font-size: 13px; color: var(--ink); }
+  .toolbar .brand .hint { font-size: 11px; color: var(--ink-mute); }
+  .toolbar .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .toolbar .save-status {
+    font-size: 11px;
+    color: var(--ink-mute);
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--slate-soft);
+    transition: background 0.2s, color 0.2s;
+  }
+  .toolbar .save-status.saved { background: var(--green-soft); color: var(--green); }
+  .toolbar button.ghost {
+    font: inherit;
+    font-size: 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .toolbar button.ghost:hover { border-color: var(--ink-soft); }
+  .toolbar button.ghost.danger { color: var(--accent); }
+  .toolbar button.ghost.danger:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- Board ---------- */
+  .board-wrap { max-width: 1320px; margin: 0 auto; padding: 24px 28px 60px; }
+  .board-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .board-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px 0; }
+  .board-sub { color: var(--ink-mute); font-size: 12px; margin: 0; }
+  .legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--ink-soft); }
+  .legend .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; border: 1px solid var(--line);
+    padding: 4px 8px; border-radius: 999px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.red { background: var(--accent); }
+  .dot.blue { background: var(--blue); }
+  .dot.green { background: var(--green); }
+  .dot.amber { background: var(--amber); }
+  .dot.purple { background: var(--purple); }
+
+  .section {
+    background: var(--board);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .section-num {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--ink); color: #fff;
+    font-size: 12px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .section-title { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.005em; }
+  .section-desc { color: var(--ink-mute); font-size: 12px; margin: 0 0 0 auto; }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .card .card-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft); margin: 0 0 8px 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card .card-body { font-size: 13px; color: var(--ink); }
+  .card.red    { border-color: #f3c8c4; background: #fff8f7; }
+  .card.blue   { border-color: #c9d4f0; background: #f7faff; }
+  .card.green  { border-color: #c5e0ce; background: #f7fbf8; }
+  .card.amber  { border-color: #ecd49a; background: #fffaf0; }
+  .card.purple { border-color: #d6c5ee; background: #faf7ff; }
+  .card.slate  { border-color: var(--line-strong); background: #fafbfc; }
+
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .tag.red    { background: var(--accent-soft); color: var(--accent); }
+  .tag.blue   { background: var(--blue-soft); color: var(--blue); }
+  .tag.green  { background: var(--green-soft); color: var(--green); }
+  .tag.amber  { background: var(--amber-soft); color: var(--amber); }
+  .tag.purple { background: var(--purple-soft); color: var(--purple); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+
+  /* LMS section (Needs / Wants) */
+  .lms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .lms-col {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lms-col.needs { border-top: 3px solid var(--blue); }
+  .lms-col.wants { border-top: 3px solid var(--accent); }
+  .lms-col-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .lms-col-head h4 { margin: 0; font-size: 14px; font-weight: 700; }
+  .lms-col-head .ltag {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .lms-col.needs .ltag { background: var(--blue-soft); color: var(--blue); }
+  .lms-col.wants .ltag { background: var(--accent-soft); color: var(--accent); }
+  .lms-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .lms-list li {
+    font-size: 12px;
+    padding: 7px 10px;
+    background: #fafbfc;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    position: relative;
+  }
+  .lms-list .add-btn { margin-top: 4px; }
+  .lms-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .lms-foot .lms-note {
+    background: #fafbfc;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .lms-foot .lms-note strong { color: var(--ink); }
+
+  /* Swimlane "extras" block (discovery/merchandising for courses) */
+  .lane-extras {
+    border-top: 1px dashed var(--line);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+  .lane-extras .extras-title {
+    font-size: 10px; font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .lane-extras ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .lane-extras li {
+    font-size: 11px;
+    padding: 5px 8px;
+    background: var(--blue-soft);
+    border-radius: 5px;
+    color: var(--ink-soft);
+    position: relative;
+  }
+
+  .brain-row { display: grid; grid-template-columns: 1.1fr 2fr; gap: 16px; align-items: stretch; }
+  .brain-core {
+    background: linear-gradient(160deg, #2a2f42 0%, #1f2330 100%);
+    color: #fff; border-radius: 12px; padding: 18px;
+    position: relative; overflow: hidden;
+  }
+  .brain-core::before {
+    content: ""; position: absolute;
+    inset: -40% -10% auto auto;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(200,54,45,0.35), transparent 60%);
+    filter: blur(8px);
+  }
+  .brain-core h3 { margin: 0 0 6px 0; font-size: 16px; }
+  .brain-core p { margin: 0; color: #c8ccd6; font-size: 12px; position: relative; }
+  .brain-core .pill {
+    display: inline-block; margin-top: 10px;
+    padding: 3px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    font-size: 11px; letter-spacing: 0.04em;
+    position: relative;
+  }
+  .feeds { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .feed { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .feed .lbl {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-mute); margin-bottom: 2px;
+  }
+  .feed .val { font-size: 13px; font-weight: 600; }
+
+  .hub-mock { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .hub-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: #f3f4f7;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-mute);
+  }
+  .hub-bar .traffic { display: flex; gap: 5px; }
+  .hub-bar .traffic span { width: 9px; height: 9px; border-radius: 50%; background: #d8dae0; display: inline-block; }
+  .hub-bar .hub-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hub-bar .hub-open {
+    font-size: 11px; color: var(--blue); text-decoration: none;
+    padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+  }
+  .hub-bar .hub-open:hover { background: var(--blue-soft); }
+  .hub-embed { position: relative; background: #fafbfc; }
+  .hub-embed iframe { width: 100%; height: 720px; border: 0; display: block; background: #fff; }
+  .hub-embed .hub-fallback {
+    padding: 8px 14px; font-size: 11px;
+    color: var(--ink-mute); background: #fff;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+  .hub-embed .hub-fallback a { color: var(--blue); text-decoration: none; }
+  .hub-embed .hub-fallback a:hover { text-decoration: underline; }
+  .hub-resize {
+    display: flex; gap: 4px; justify-content: center;
+    padding: 6px; background: #fafbfc;
+    border-top: 1px solid var(--line);
+  }
+  .hub-resize button {
+    font: inherit; font-size: 10px;
+    background: #fff; border: 1px solid var(--line);
+    color: var(--ink-soft); padding: 3px 8px;
+    border-radius: 4px; cursor: pointer;
+  }
+  .hub-resize button:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .hub-body { display: grid; grid-template-columns: 200px 1fr; min-height: 280px; }
+  .hub-nav { background: #fafbfc; border-right: 1px solid var(--line); padding: 12px 10px; font-size: 12px; }
+  .hub-nav .navhead {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-mute); margin: 10px 6px 4px;
+  }
+  .hub-nav .navhead:first-child { margin-top: 0; }
+  .hub-nav .navitem {
+    padding: 6px 8px; border-radius: 6px;
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .hub-nav .navitem.active {
+    background: #fff; border: 1px solid var(--line);
+    color: var(--ink); font-weight: 600;
+  }
+  .hub-nav .badge {
+    font-size: 10px; background: var(--accent-soft); color: var(--accent);
+    padding: 1px 6px; border-radius: 999px;
+  }
+  .hub-content { padding: 14px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .kpi { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fff; }
+  .kpi .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-mute); }
+  .kpi .v { font-size: 17px; font-weight: 700; margin-top: 2px; }
+  .kpi .d { font-size: 10px; color: var(--green); margin-top: 2px; }
+  .kpi .d.down { color: var(--accent); }
+  .widget-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  .widget { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #fff; }
+  .widget .wt {
+    font-size: 11px; font-weight: 600; color: var(--ink-soft);
+    margin-bottom: 6px; display: flex; justify-content: space-between;
+  }
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding-top: 4px; }
+  .bar-chart .b {
+    flex: 1;
+    background: linear-gradient(180deg, var(--accent), #e07269);
+    border-radius: 3px 3px 0 0;
+    opacity: 0.85;
+  }
+  .list-mini { font-size: 12px; }
+  .list-mini .row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px dashed var(--line);
+  }
+  .list-mini .row:last-of-type { border-bottom: none; }
+  .list-mini .row .s {
+    font-size: 10px; padding: 1px 6px; border-radius: 999px;
+    background: var(--green-soft); color: var(--green);
+  }
+  .list-mini .row .s.warn { background: var(--amber-soft); color: var(--amber); }
+
+  .swimlanes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .swimlane {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .swimlane.events  { border-top: 3px solid var(--accent); }
+  .swimlane.courses { border-top: 3px solid var(--blue); }
+  .swimlane.deliver { border-top: 3px solid var(--green); }
+  .lane-head { display: flex; align-items: center; justify-content: space-between; }
+  .lane-head h4 { margin: 0; font-size: 14px; font-weight: 700; }
+  .step { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; }
+  .step .n {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .swimlane.events .step .n  { background: var(--accent); }
+  .swimlane.courses .step .n { background: var(--blue); }
+  .swimlane.deliver .step .n { background: var(--green); }
+  .step .body { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fafbfc; }
+  .step .title { font-size: 12px; font-weight: 600; }
+  .step .sys { font-size: 10px; color: var(--ink-mute); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .arrow { text-align: center; color: var(--ink-mute); font-size: 14px; line-height: 1; margin: -2px 0; }
+  .lane-foot {
+    border-top: 1px dashed var(--line);
+    padding-top: 8px; margin-top: 4px;
+    font-size: 11px; color: var(--ink-soft);
+  }
+  .lane-foot strong { color: var(--ink); }
+
+  .map-wrap {
+    background: #fafbfc; border: 1px dashed var(--line-strong);
+    border-radius: 12px; padding: 12px; margin-top: 14px;
+  }
+
+  .admin-grid { display: grid; grid-template-columns: 1.1fr 2fr; gap: 14px; }
+  .admin-side { background: #1f2330; color: #fff; border-radius: 12px; padding: 14px; }
+  .admin-side h4 { margin: 0 0 4px 0; font-size: 14px; }
+  .admin-side p { color: #b8bdca; font-size: 11px; margin: 0 0 12px 0; }
+  .admin-nav { display: flex; flex-direction: column; gap: 4px; }
+  .admin-nav .ni {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 10px; border-radius: 6px;
+    color: #d6d9e2; font-size: 12px;
+    border: 1px solid transparent;
+  }
+  .admin-nav .ni.on {
+    background: #2a2f42; border-color: #3a4256;
+    color: #fff; font-weight: 600;
+  }
+  .admin-nav .ni .pill {
+    font-size: 10px; background: rgba(255,255,255,0.08);
+    padding: 1px 6px; border-radius: 999px; color: #c8ccd6;
+  }
+  .admin-features { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+
+  .journey { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: stretch; }
+  .jstep {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px; display: flex; flex-direction: column;
+  }
+  .jstep .jn {
+    font-size: 10px; font-weight: 700; color: var(--ink-mute);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .jstep .jt { font-size: 13px; font-weight: 700; margin-top: 2px; }
+  .jstep .jd { font-size: 11px; color: var(--ink-soft); margin-top: 4px; flex: 1; }
+  .jstep .jsys {
+    margin-top: 8px; font-size: 10px; color: var(--blue);
+    background: var(--blue-soft); padding: 2px 6px; border-radius: 999px;
+    display: inline-block; align-self: flex-start;
+  }
+
+  .sticky-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .sticky {
+    background: var(--sticky); border: 1px solid var(--sticky-edge);
+    border-radius: 4px; padding: 12px;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.06);
+    transform: rotate(-0.6deg);
+    min-height: 130px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .sticky:nth-child(2n) { transform: rotate(0.7deg); background: #ffe7b3; border-color: #f0d28a; }
+  .sticky:nth-child(3n) { transform: rotate(-0.3deg); background: #d8f0c9; border-color: #b8d9a3; }
+  .sticky:nth-child(4n) { transform: rotate(0.4deg); background: #f8d4cf; border-color: #e9b4ac; }
+  .sticky .h { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .sticky .q { font-size: 12px; color: #2a2f42; }
+  .sticky .who { margin-top: auto; font-size: 10px; color: #5a5e6b; }
+
+  .foot-note { color: var(--ink-mute); font-size: 11px; margin-top: 6px; }
+
+  /* ---------- Editing affordances ---------- */
+  [contenteditable="true"] {
+    cursor: text;
+    border-radius: 3px;
+    transition: outline-color 0.12s, background 0.12s;
+  }
+  [contenteditable="true"]:hover {
+    outline: 1px dashed rgba(127,127,140,0.55);
+    outline-offset: 2px;
+  }
+  [contenteditable="true"]:focus {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+    background: rgba(255,255,255,0.96);
+    color: var(--ink);
+  }
+  /* Make focus on dark backgrounds readable */
+  .brain-core [contenteditable="true"]:focus,
+  .admin-side [contenteditable="true"]:focus {
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .add-btn {
+    font: inherit;
+    font-size: 11px;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    grid-column: 1 / -1;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .add-btn:hover {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+    background: #fff;
+  }
+  .swimlane .add-btn { grid-column: auto; }
+  .list-mini .add-btn { padding: 6px 8px; margin-top: 4px; }
+  .hub-nav .add-btn, .admin-nav .add-btn {
+    padding: 5px 8px;
+    margin-top: 6px;
+    font-size: 10px;
+  }
+  .admin-nav .add-btn {
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.55);
+  }
+  .admin-nav .add-btn:hover {
+    border-color: rgba(255,255,255,0.45);
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .has-remove { position: relative; }
+  .remove-btn {
+    position: absolute;
+    top: -7px; right: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--ink-soft);
+    border: 1px solid var(--line-strong);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 5;
+  }
+  .has-remove:hover > .remove-btn { display: flex; }
+  .remove-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .admin-nav .remove-btn, .hub-nav .remove-btn {
+    top: 50%; right: 4px; transform: translateY(-50%);
+    width: 16px; height: 16px; font-size: 12px;
+  }
+  .list-mini .remove-btn {
+    top: 50%; right: -4px; transform: translateY(-50%);
+    width: 16px; height: 16px; font-size: 12px;
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    .toolbar, .add-btn, .remove-btn { display: none !important; }
+    body { background: white; }
+    .section { box-shadow: none; break-inside: avoid; }
+    [contenteditable="true"]:hover { outline: none !important; }
+  }
+
+  /* Hub modules (replaces embedded iframe) */
+  .hub-callout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--blue-soft);
+    border: 1px solid #c9d4f0;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .hub-callout-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    background: #fff;
+    padding: 3px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .hub-modules {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .hub-modules .card { display: flex; flex-direction: column; gap: 4px; }
+  .hub-modules .card .module-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .hub-modules .card .module-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1000px) {
+    .swimlanes, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .swimlanes, .grid-2, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules {
+      grid-template-columns: 1fr !important;
+    }
+    .hub-body { grid-template-columns: 1fr; }
+    .hub-nav { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar" id="toolbar">
+  <div class="brand">
+    <strong>Fire Tech Architecture Board</strong>
+    <span class="hint">Click any text to edit · hover items for + / × · changes auto-save</span>
+  </div>
+  <div class="actions">
+    <span class="save-status saved" id="save-status">All changes saved</span>
+    <button class="ghost" id="btn-import" title="Load a previously downloaded board file">Import</button>
+    <input type="file" id="file-import" accept=".html,text/html" hidden>
+    <button class="ghost" id="btn-download" title="Download current board as a standalone HTML file">Download HTML</button>
+    <button class="ghost" id="btn-print" title="Print to PDF or paper">Print</button>
+    <button class="ghost danger" id="btn-reset" title="Discard local changes and reload original">Reset</button>
+  </div>
+</div>
+
+<div class="board-wrap" id="board">
+
+  <!-- HEADER -->
+  <div class="board-header">
+    <div>
+      <h1 class="board-title">Fire Tech Platform — Architecture &amp; Wireframe Board</h1>
+      <p class="board-sub">Workshop output · v0.1 draft · For leadership, engineering, design &amp; operations review</p>
+    </div>
+    <div class="legend">
+      <span class="chip"><span class="dot red"></span>Customer-facing</span>
+      <span class="chip"><span class="dot blue"></span>Internal / Admin</span>
+      <span class="chip"><span class="dot green"></span>Fulfillment</span>
+      <span class="chip"><span class="dot amber"></span>Knowledge / AI</span>
+      <span class="chip"><span class="dot purple"></span>Open question</span>
+    </div>
+  </div>
+
+  <!-- 1. FTP BRAIN -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">1</span>
+      <h2 class="section-title">FTP Brain — Knowledge System</h2>
+      <p class="section-desc">Centralized content + AI knowledge layer feeding every surface</p>
+    </div>
+    <div class="brain-row">
+      <div class="brain-core">
+        <h3>FTP Brain</h3>
+        <p>A single source of truth that powers the website, internal tools, future AI assistant, and customer-facing chat. Versioned, searchable, and structured for retrieval.</p>
+        <span class="pill">AI-ready knowledge layer</span>
+      </div>
+      <div class="stack">
+        <div class="feeds">
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">Content Knowledge</div></div>
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">SME Knowledge</div></div>
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">NFPA References</div></div>
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">"How" Documentation</div></div>
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">Brand Guide</div></div>
+          <div class="feed"><div class="lbl">Feeds</div><div class="val">Course / Product Catalog</div></div>
+        </div>
+        <div class="grid-4">
+          <div class="card amber">
+            <div class="card-title"><span class="tag amber">Powers</span></div>
+            <div class="card-body">Public site search, course descriptions, certification info.</div>
+          </div>
+          <div class="card amber">
+            <div class="card-title"><span class="tag amber">Powers</span></div>
+            <div class="card-body">Internal admin help, SOP lookup, onboarding for new staff.</div>
+          </div>
+          <div class="card amber">
+            <div class="card-title"><span class="tag amber">Powers</span></div>
+            <div class="card-body">LMS course content, AI course recommendations, certifications context.</div>
+          </div>
+          <div class="card amber">
+            <div class="card-title"><span class="tag amber">Future</span></div>
+            <div class="card-body">AI chatbot (customer + internal), automated content drafting.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. FIRE TECH HUB -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">2</span>
+      <h2 class="section-title">Fire Tech Hub — Internal Landing Page</h2>
+      <p class="section-desc">Embedded in monday.com as the "Home" page · the team's daily front door</p>
+    </div>
+    <div class="hub-callout">
+      <span class="hub-callout-tag">Context</span>
+      <span>Lives inside <strong>monday.com</strong> as the Home page · M365 SSO · powered by the FTP Brain · what every team member sees first</span>
+    </div>
+    <div class="hub-modules">
+      <div class="card blue">
+        <div class="module-name">Dashboards</div>
+        <div class="module-desc">Live operational views across departments — events, courses, fulfillment, finance.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">KPIs</div>
+        <div class="module-desc">Tracked targets per team and per company rock — green/yellow/red status at a glance.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Metrics</div>
+        <div class="module-desc">Weekly scorecard numbers (sales, enrollments, NPS, completions) rolled up from source systems.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Accountability Chart</div>
+        <div class="module-desc">Org structure and role ownership — who owns what, who reports to whom.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Notifications</div>
+        <div class="module-desc">Mentions, assignments, IDS items, overdue items — your inbox for the platform.</div>
+      </div>
+    </div>
+    <p class="foot-note">Hub is the team's daily front door. The public website (Section 3) is a separate surface; both share the FTP Brain (Section 1).</p>
+  </div>
+
+  <!-- 3. FIRE TECH WEBSITE PROJECT -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">3</span>
+      <h2 class="section-title">Fire Tech Website — Customer Workflows</h2>
+      <p class="section-desc">Three product lines, three flows, one cart experience</p>
+    </div>
+
+    <div class="swimlanes">
+      <div class="swimlane events">
+        <div class="lane-head">
+          <h4>A · Events</h4>
+          <span class="tag red">Workshops &amp; in-person</span>
+        </div>
+        <div class="step"><div class="n">1</div><div class="body"><div class="title">Browse &amp; select event</div><div class="sys">Website · CMS-driven</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">2</div><div class="body"><div class="title">Add to cart &amp; checkout</div><div class="sys">Shopify</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">3</div><div class="body"><div class="title">Enrollment record created</div><div class="sys">Shopify &rarr; monday.com</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">4</div><div class="body"><div class="title">Event managed end-to-end</div><div class="sys">monday.com Event Registrations</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">5</div><div class="body"><div class="title">Status &amp; roster sync back to web</div><div class="sys">monday.com &harr; Website</div></div></div>
+        <div class="lane-foot"><strong>Source of truth:</strong> monday.com for operations · Shopify for payments.</div>
+      </div>
+
+      <div class="swimlane courses">
+        <div class="lane-head">
+          <h4>B · Online Courses</h4>
+          <span class="tag blue">Self-paced LMS</span>
+        </div>
+        <div class="step"><div class="n">1</div><div class="body"><div class="title">Browse course catalog</div><div class="sys">Website · pulls from FTP Brain</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">2</div><div class="body"><div class="title">Purchase (single or bulk)</div><div class="sys">Shopify</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">3</div><div class="body"><div class="title">Auto-enrollment via API</div><div class="sys">Shopify &rarr; LMS API</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">4</div><div class="body"><div class="title">Learner gets access link</div><div class="sys">LMS · email + customer portal</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">5</div><div class="body"><div class="title">Completion &rarr; certification</div><div class="sys">LMS &rarr; Compliance Tracker (new)</div></div></div>
+        <div class="lane-extras">
+          <div class="extras-title">Discovery &amp; merchandising</div>
+          <ul>
+            <li>Catalog browsing &amp; filtering</li>
+            <li>AI course recommendations</li>
+            <li>Free books / discount bundles</li>
+          </ul>
+        </div>
+        <div class="lane-foot"><strong>Includes:</strong> APi-style monthly enrollment invoicing for enterprise accounts.</div>
+      </div>
+
+      <div class="swimlane deliver">
+        <div class="lane-head">
+          <h4>C · Deliverables</h4>
+          <span class="tag green">Physical products</span>
+        </div>
+        <div class="step"><div class="n">1</div><div class="body"><div class="title">Browse product catalog</div><div class="sys">Website</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">2</div><div class="body"><div class="title">Add to cart &amp; checkout</div><div class="sys">Shopify</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">3</div><div class="body"><div class="title">Order routed to fulfillment</div><div class="sys">Shopify &rarr; ShipStation</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">4</div><div class="body"><div class="title">Pick, pack, ship, track</div><div class="sys">ShipStation</div></div></div>
+        <div class="arrow">&#9660;</div>
+        <div class="step"><div class="n">5</div><div class="body"><div class="title">Tracking visible in customer account</div><div class="sys">ShipStation &rarr; Website</div></div></div>
+        <div class="lane-foot"><strong>Bundles note:</strong> "Course Packages" (book + course) split via existing reclass JE.</div>
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <svg viewBox="0 0 900 320" width="100%" height="320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FTP Brain knowledge feed diagram">
+        <defs>
+          <marker id="ar-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#b8730f"/>
+          </marker>
+          <style>
+            .node { fill: #fff; stroke: #cdd0d7; stroke-width: 1.2; }
+            .nlabel { font: 600 14px ui-sans-serif, system-ui; fill: #1f2330; }
+            .nsub { font: 10px ui-sans-serif, system-ui; fill: #7a7f8c; letter-spacing: 0.08em; text-transform: uppercase; }
+            .nnote { font: 11px ui-sans-serif, system-ui; fill: #7a7f8c; }
+            .feed { stroke: #b8730f; stroke-width: 2; fill: none; marker-end: url(#ar-amber); }
+            .feedlabel { font: 600 10px ui-sans-serif, system-ui; fill: #b8730f; letter-spacing: 0.06em; text-transform: uppercase; }
+          </style>
+        </defs>
+
+        <!-- FTP Brain (knowledge source) -->
+        <g>
+          <rect class="node" x="40" y="120" width="200" height="80" rx="10" fill="#1f2330" stroke="#1f2330"/>
+          <text class="nsub" x="60" y="148" fill="#b8bdca">Knowledge layer</text>
+          <text class="nlabel" x="60" y="170" fill="#fff">FTP Brain</text>
+          <text class="nnote" x="60" y="188" fill="#c8ccd6">Content · SME · NFPA · Brand</text>
+        </g>
+
+        <!-- Website (top surface) -->
+        <g>
+          <rect class="node" x="600" y="30" width="240" height="70" rx="10"/>
+          <text class="nsub" x="620" y="56">Customer surface</text>
+          <text class="nlabel" x="620" y="76">Website</text>
+          <text class="nnote" x="620" y="93">Catalog · search · AI chat · pages</text>
+        </g>
+
+        <!-- LMS (middle surface) -->
+        <g>
+          <rect class="node" x="600" y="125" width="240" height="70" rx="10"/>
+          <text class="nsub" x="620" y="151">Learner surface</text>
+          <text class="nlabel" x="620" y="171">LMS</text>
+          <text class="nnote" x="620" y="188">Course content · AI help · certs</text>
+        </g>
+
+        <!-- Admin Portal (bottom surface) -->
+        <g>
+          <rect class="node" x="600" y="220" width="240" height="70" rx="10"/>
+          <text class="nsub" x="620" y="246">Internal surface</text>
+          <text class="nlabel" x="620" y="266">Admin Portal</text>
+          <text class="nnote" x="620" y="283">SOPs · "How" docs · brand assets</text>
+        </g>
+
+        <!-- Three amber feed arrows -->
+        <path class="feed" d="M 240 145 C 380 145, 460 70, 600 65"/>
+        <path class="feed" d="M 240 160 L 600 160"/>
+        <path class="feed" d="M 240 175 C 380 175, 460 250, 600 255"/>
+
+        <!-- "Feeds" label near the Brain -->
+        <text class="feedlabel" x="285" y="125">Feeds</text>
+      </svg>
+      <p class="foot-note" style="margin-top:6px;">The FTP Brain is the single source of truth. It feeds three surfaces: the <strong style="color:#1f2330">Website</strong> (customer-facing), the <strong style="color:#1f2330">LMS</strong> (learner-facing), and the <strong style="color:#1f2330">Admin Portal</strong> (internal). Commerce, fulfillment, and reporting flows are detailed in the swimlanes above.</p>
+    </div>
+  </div>
+
+  <!-- 4. ADMIN PORTAL -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">4</span>
+      <h2 class="section-title">Admin Portal — Internal Operations &amp; CMS</h2>
+      <p class="section-desc">No-code control plane for the team · ties website, LMS, finance, and accounts together</p>
+    </div>
+    <div class="admin-grid">
+      <aside class="admin-side">
+        <h4>Admin Portal</h4>
+        <p>Internal-only · M365 SSO · role-based permissions</p>
+        <div class="admin-nav">
+          <div class="ni on">Website Manager <span class="pill">no-code</span></div>
+          <div class="ni">Media Library <span class="pill">assets</span></div>
+          <div class="ni">API Keys &amp; Integrations</div>
+          <div class="ni">Staff Accounts</div>
+          <div class="ni">Customer Accounts <span class="pill">?</span></div>
+          <div class="ni">Reporting &amp; Analytics</div>
+          <div class="ni">Permissions &amp; Security</div>
+          <div class="ni">Audit Log</div>
+        </div>
+      </aside>
+      <div class="admin-features">
+        <div class="card blue"><div class="card-title"><span class="tag blue">Module</span> Website Manager</div><div class="card-body">No-code editing of pages, course catalog, events, navigation. Publish controls + draft preview.</div></div>
+        <div class="card blue"><div class="card-title"><span class="tag blue">Module</span> Media Library</div><div class="card-body">Central asset store: images, video, PDFs, downloadables. Tied to Brand Guide in FTP Brain.</div></div>
+        <div class="card blue"><div class="card-title"><span class="tag blue">Module</span> API &amp; Integrations</div><div class="card-body">Manage keys/webhooks for Shopify, LMS, monday.com, ShipStation, QBO, Mailchimp.</div></div>
+        <div class="card blue"><div class="card-title"><span class="tag blue">Module</span> Staff Accounts</div><div class="card-body">Provisioning via M365 SSO · role assignment · access to Hub, Admin Portal, monday.com boards.</div></div>
+        <div class="card purple"><div class="card-title"><span class="tag purple">Open</span> Customer Accounts</div><div class="card-body">Where does the customer identity actually live? See Section 6, Q1. Affects every workflow.</div></div>
+        <div class="card blue"><div class="card-title"><span class="tag blue">Module</span> Reporting &amp; Analytics</div><div class="card-body">Cross-system reporting (sales, enrollments, fulfillment) rolled up for leadership · feeds the Hub.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. CUSTOMER JOURNEY -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">5</span>
+      <h2 class="section-title">Customer Experience — End-to-End Journey</h2>
+      <p class="section-desc">From discovery to certification and re-engagement</p>
+    </div>
+    <div class="journey">
+      <div class="jstep"><div class="jn">01 · Discover</div><div class="jt">Find training</div><div class="jd">SEO, referrals, AI chat, FTP Brain-powered search.</div><div class="jsys">Website</div></div>
+      <div class="jstep"><div class="jn">02 · Decide</div><div class="jt">Compare &amp; select</div><div class="jd">Course / event / deliverable pages with consistent metadata.</div><div class="jsys">Website + Brain</div></div>
+      <div class="jstep"><div class="jn">03 · Purchase</div><div class="jt">Checkout</div><div class="jd">One Shopify cart across all three product lines.</div><div class="jsys">Shopify</div></div>
+      <div class="jstep"><div class="jn">04 · Enroll</div><div class="jt">Get access</div><div class="jd">LMS auto-enroll, event confirmation, or order tracking.</div><div class="jsys">LMS / monday / ShipStation</div></div>
+      <div class="jstep"><div class="jn">05 · Learn</div><div class="jt">Complete training</div><div class="jd">Self-paced LMS or attend event · materials in customer account.</div><div class="jsys">LMS</div></div>
+      <div class="jstep"><div class="jn">06 · Certify</div><div class="jt">Certifications</div><div class="jd">Digital cert issued · stored in customer record.</div><div class="jsys">LMS &rarr; Compliance Tracker</div></div>
+      <div class="jstep"><div class="jn">07 · Comply</div><div class="jt">Track &amp; renew</div><div class="jd">Compliance Tracker reminds learners + admins of renewals.</div><div class="jsys">New module</div></div>
+    </div>
+  </div>
+
+  <!-- 6. LMS REQUIREMENTS -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">6</span>
+      <h2 class="section-title">LMS — Platform Requirements</h2>
+      <p class="section-desc">Feeds the Online Courses flow · drives the LMS Timeline decision (see Q6)</p>
+    </div>
+    <div class="lms-grid">
+      <div class="lms-col needs">
+        <div class="lms-col-head">
+          <h4>Needs</h4>
+          <span class="ltag">Must-have for MVP</span>
+        </div>
+        <ul class="lms-list">
+          <li>Courses (catalog + structure)</li>
+          <li>Timers / activity tracking</li>
+          <li>Customer portals (learner accounts)</li>
+          <li>SCORM compatibility</li>
+          <li>Audio content support</li>
+          <li>Engaging system / modern UX</li>
+          <li>AI help (in-course assistant)</li>
+          <li>Quiz / test / exam builder</li>
+          <li>Certification holder</li>
+          <li>Hold "Next" button until X seconds</li>
+          <li>Video content support</li>
+          <li>Adapt to new training models / theory</li>
+        </ul>
+      </div>
+      <div class="lms-col wants">
+        <div class="lms-col-head">
+          <h4>Wants</h4>
+          <span class="ltag">Phase 2 / aspirational</span>
+        </div>
+        <ul class="lms-list">
+          <li>Anti-cheat software</li>
+          <li>AR / VR capabilities</li>
+          <li>AI smart-glasses connection</li>
+        </ul>
+      </div>
+    </div>
+    <div class="lms-foot">
+      <div class="lms-note">
+        <strong>Knowledge feed:</strong> Course content, AI recommendations, and certification context all source from the FTP Brain (Section 1).
+      </div>
+      <div class="lms-note">
+        <strong>Enrollment:</strong> Customer purchases on Shopify → auto-enrollment via LMS API (Section 3, swimlane B).
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. OPEN QUESTIONS -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">7</span>
+      <h2 class="section-title">Open Questions — Decisions Needed</h2>
+      <p class="section-desc">Workshop sticky notes · assign owners before build kicks off</p>
+    </div>
+    <div class="sticky-grid">
+      <div class="sticky"><div class="h">Q1 · Identity</div><div class="q">Where does the customer account live — monday.com, Website, LMS, or Shopify? Pick one source of truth.</div><div class="who">Owner: TBD · blocks Sections 3, 4, 5</div></div>
+      <div class="sticky"><div class="h">Q2 · Security</div><div class="q">SSO strategy, integration auth, analytics stack, PII handling across systems.</div><div class="who">Owner: IT · review with leadership</div></div>
+      <div class="sticky"><div class="h">Q3 · Brain Scope</div><div class="q">What does the website pull from FTP Brain vs. what stays internal-only?</div><div class="who">Owner: Content + Eng</div></div>
+      <div class="sticky"><div class="h">Q4 · AI Chatbot</div><div class="q">Do we ship an AI chatbot on the public site at launch, or phase 2?</div><div class="who">Owner: Product</div></div>
+      <div class="sticky"><div class="h">Q5 · Forms &amp; Marketing</div><div class="q">Form flows &rarr; automated marketing (Mailchimp). What's MVP vs nice-to-have?</div><div class="who">Owner: Marketing</div></div>
+      <div class="sticky"><div class="h">Q6 · LMS Timeline</div><div class="q">When does the new LMS (or current LMS API) need to be ready for cutover? See Section 6 for the full spec.</div><div class="who">Owner: Operations</div></div>
+      <div class="sticky"><div class="h">Q7 · Compliance Tracker</div><div class="q">Build inside Admin Portal, inside LMS, or standalone? Who owns renewals?</div><div class="who">Owner: Product + Ops</div></div>
+      <div class="sticky"><div class="h">Q8 · Reporting</div><div class="q">Single reporting layer that consumes from Shopify + LMS + monday + QBO?</div><div class="who">Owner: Finance + IT</div></div>
+    </div>
+  </div>
+
+  <p class="foot-note" style="text-align:center;">Editable workshop board · Sections are modular — each can be lifted into Figma, Notion, or a project brief without losing context.</p>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const STORAGE_KEY = 'ft-board-v1';
+  const board = document.getElementById('board');
+  const statusEl = document.getElementById('save-status');
+
+  // ---- Templates for "add new" ----
+  const templates = {
+    sticky: `<div class="sticky"><div class="h">New question</div><div class="q">Describe the question or decision needed.</div><div class="who">Owner: TBD</div></div>`,
+    jstep: `<div class="jstep"><div class="jn">## · Step</div><div class="jt">New step</div><div class="jd">Describe what happens here.</div><div class="jsys">System</div></div>`,
+    adminCard: `<div class="card blue"><div class="card-title"><span class="tag blue">Module</span> New Module</div><div class="card-body">Describe what this module does.</div></div>`,
+    feed: `<div class="feed"><div class="lbl">Feeds</div><div class="val">New source</div></div>`,
+    kpi: `<div class="kpi"><div class="k">New KPI</div><div class="v">—</div><div class="d">—</div></div>`,
+    listRow: `<div class="row"><span>New item</span><span class="s">status</span></div>`,
+    navitem: `<div class="navitem">New link</div>`,
+    adminNi: `<div class="ni">New module</div>`,
+    swimStep: `<div class="step"><div class="n">+</div><div class="body"><div class="title">New step</div><div class="sys">System</div></div></div>`,
+    journeyArrow: null,
+    feature: `<div class="feed"><div class="lbl">Use</div><div class="val">New use case</div></div>`,
+    lmsItem: `<li>New requirement</li>`,
+    laneExtra: `<li>New item</li>`,
+    hubModule: `<div class="card blue"><div class="module-name">New Module</div><div class="module-desc">Describe what this module does in the Hub.</div></div>`,
+  };
+
+  // ---- Lists that get an "Add" button + removable children ----
+  // insertBefore: optional selector — append before this element rather than at end
+  const lists = [
+    { sel: '.sticky-grid',    tpl: 'sticky',    label: '+ Add sticky',          childSel: '.sticky' },
+    { sel: '.journey',        tpl: 'jstep',     label: '+ Add journey step',    childSel: '.jstep' },
+    { sel: '.admin-features', tpl: 'adminCard', label: '+ Add module',          childSel: '.card' },
+    { sel: '.feeds',          tpl: 'feed',      label: '+ Add feed',            childSel: '.feed' },
+    { sel: '.kpi-row',        tpl: 'kpi',       label: '+ Add KPI',             childSel: '.kpi' },
+    { sel: '.list-mini',      tpl: 'listRow',   label: '+ Add row',             childSel: '.row' },
+    { sel: '.hub-nav',        tpl: 'navitem',   label: '+ Add link',            childSel: '.navitem' },
+    { sel: '.admin-nav',      tpl: 'adminNi',   label: '+ Add module',          childSel: '.ni' },
+    { sel: '.lms-list',       tpl: 'lmsItem',   label: '+ Add requirement',     childSel: 'li' },
+    { sel: '.lane-extras ul', tpl: 'laneExtra', label: '+ Add item',            childSel: 'li' },
+    { sel: '.hub-modules',    tpl: 'hubModule', label: '+ Add Hub module',      childSel: '.card' },
+  ];
+
+  // ---- Make text leaves editable ----
+  function makeTextEditable(root) {
+    const skipMatch = 'button, script, style, svg, svg *, iframe, .hub-embed, .hub-embed *, .hub-fallback, .hub-fallback *, .hub-resize, .hub-resize *, .hub-open, .add-btn, .remove-btn, .traffic, .traffic span, .bar-chart, .bar-chart .b, .dot';
+    root.querySelectorAll('*').forEach(el => {
+      if (el.matches(skipMatch)) return;
+      if (el.closest('svg')) return;
+      // Only direct text children (no element children, ignoring <br>)
+      const hasElementChildren = Array.from(el.children).some(c => c.tagName !== 'BR');
+      if (hasElementChildren) return;
+      if (!el.textContent.trim()) return;
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'true');
+    });
+  }
+
+  // ---- Add remove (×) button to an item ----
+  function attachRemove(el) {
+    if (!el || el.querySelector(':scope > .remove-btn')) return;
+    el.classList.add('has-remove');
+    const btn = document.createElement('button');
+    btn.className = 'remove-btn';
+    btn.type = 'button';
+    btn.title = 'Remove';
+    btn.setAttribute('aria-label', 'Remove');
+    btn.textContent = '×';
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      el.remove();
+      scheduleSave();
+    });
+    el.appendChild(btn);
+  }
+
+  // ---- Attach add buttons + remove buttons to all lists ----
+  function attachListControls(root) {
+    lists.forEach(({ sel, tpl, label, childSel }) => {
+      root.querySelectorAll(sel).forEach(container => {
+        // Add remove buttons to existing children
+        container.querySelectorAll(`:scope > ${childSel}`).forEach(attachRemove);
+        // Add "+" button if not present
+        if (!container.querySelector(':scope > .add-btn')) {
+          const btn = document.createElement('button');
+          btn.className = 'add-btn';
+          btn.type = 'button';
+          btn.textContent = label;
+          btn.addEventListener('click', e => {
+            e.preventDefault();
+            const wrap = document.createElement('div');
+            wrap.innerHTML = templates[tpl].trim();
+            const newEl = wrap.firstElementChild;
+            container.insertBefore(newEl, btn);
+            makeTextEditable(newEl);
+            attachRemove(newEl);
+            // Focus first editable inside the new element
+            const focusable = newEl.querySelector('[contenteditable="true"]');
+            if (focusable) {
+              focusable.focus();
+              const range = document.createRange();
+              range.selectNodeContents(focusable);
+              const selObj = window.getSelection();
+              selObj.removeAllRanges();
+              selObj.addRange(range);
+            }
+            scheduleSave();
+          });
+          container.appendChild(btn);
+        }
+      });
+    });
+
+    // Swimlanes: add "+ step" before .lane-foot
+    root.querySelectorAll('.swimlane').forEach(lane => {
+      lane.querySelectorAll(':scope > .step').forEach(attachRemove);
+      if (!lane.querySelector(':scope > .add-btn')) {
+        const btn = document.createElement('button');
+        btn.className = 'add-btn';
+        btn.type = 'button';
+        btn.textContent = '+ Add step';
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          const wrap = document.createElement('div');
+          wrap.innerHTML = templates.swimStep.trim();
+          const newEl = wrap.firstElementChild;
+          const foot = lane.querySelector(':scope > .lane-foot');
+          if (foot) lane.insertBefore(newEl, foot); else lane.appendChild(newEl);
+          makeTextEditable(newEl);
+          attachRemove(newEl);
+          const focusable = newEl.querySelector('[contenteditable="true"]');
+          if (focusable) focusable.focus();
+          scheduleSave();
+        });
+        const foot = lane.querySelector(':scope > .lane-foot');
+        if (foot) lane.insertBefore(btn, foot); else lane.appendChild(btn);
+      }
+    });
+  }
+
+  // ---- Save / load ----
+  function getCleanHTML() {
+    const clone = board.cloneNode(true);
+    clone.querySelectorAll('.add-btn, .remove-btn').forEach(b => b.remove());
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    clone.querySelectorAll('[spellcheck]').forEach(el => el.removeAttribute('spellcheck'));
+    clone.querySelectorAll('.has-remove').forEach(el => el.classList.remove('has-remove'));
+    return clone.innerHTML;
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    statusEl.textContent = 'Saving…';
+    statusEl.classList.remove('saved');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, getCleanHTML());
+        statusEl.textContent = 'All changes saved';
+        statusEl.classList.add('saved');
+      } catch (err) {
+        statusEl.textContent = 'Save failed (storage full?)';
+      }
+    }, 450);
+  }
+
+  function loadFromStorage() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) board.innerHTML = saved;
+    } catch (err) {
+      console.warn('Could not load saved board:', err);
+    }
+    runMigrations();
+  }
+
+  function runMigrations() {
+    try { migrateHubIfNeeded(); } catch(e) { console.warn('hub migration failed', e); }
+    try { migrateBrainCardsIfNeeded(); } catch(e) { console.warn('brain migration failed', e); }
+    try { migrateCoursesSwimlaneIfNeeded(); } catch(e) { console.warn('courses migration failed', e); }
+    try { migrateIntegrationMapIfNeeded(); } catch(e) { console.warn('map migration failed', e); }
+    try { migrateLMSSectionIfNeeded(); } catch(e) { console.warn('lms migration failed', e); }
+  }
+
+  // ---- Migration: convert any prior Hub variant into the modules list ----
+  const NEW_HUB_CALLOUT_HTML = `
+    <div class="hub-callout">
+      <span class="hub-callout-tag">Context</span>
+      <span>Lives inside <strong>monday.com</strong> as the Home page · M365 SSO · powered by the FTP Brain · what every team member sees first</span>
+    </div>`;
+
+  const NEW_HUB_MODULES_HTML = `
+    <div class="hub-modules">
+      <div class="card blue">
+        <div class="module-name">Dashboards</div>
+        <div class="module-desc">Live operational views across departments — events, courses, fulfillment, finance.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">KPIs</div>
+        <div class="module-desc">Tracked targets per team and per company rock — green/yellow/red status at a glance.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Metrics</div>
+        <div class="module-desc">Weekly scorecard numbers (sales, enrollments, NPS, completions) rolled up from source systems.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Accountability Chart</div>
+        <div class="module-desc">Org structure and role ownership — who owns what, who reports to whom.</div>
+      </div>
+      <div class="card blue">
+        <div class="module-name">Notifications</div>
+        <div class="module-desc">Mentions, assignments, IDS items, overdue items — your inbox for the platform.</div>
+      </div>
+    </div>`;
+
+  function migrateHubIfNeeded() {
+    // Skip if the new modules grid already exists
+    if (board.querySelector('.hub-modules')) return;
+    // Locate the Hub section by its title
+    let hubSection = null;
+    for (const sec of board.querySelectorAll('.section')) {
+      const t = sec.querySelector('.section-title');
+      if (t && /Fire Tech Hub/i.test(t.textContent)) { hubSection = sec; break; }
+    }
+    if (!hubSection) return;
+    // Update title + desc to reflect the new framing (only if they still look like the old version)
+    const title = hubSection.querySelector('.section-title');
+    const desc = hubSection.querySelector('.section-desc');
+    if (title && /Internal Landing.*Dashboards/i.test(title.textContent)) {
+      title.textContent = 'Fire Tech Hub — Internal Landing Page';
+    }
+    if (desc && /SSO via Microsoft 365/i.test(desc.textContent)) {
+      desc.textContent = 'Embedded in monday.com as the "Home" page · the team\u2019s daily front door';
+    }
+    // Remove the old hub mock (whichever variant: iframe embed OR the original .hub-body design)
+    const oldMock = hubSection.querySelector('.hub-mock');
+    if (oldMock) {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = NEW_HUB_CALLOUT_HTML.trim() + NEW_HUB_MODULES_HTML.trim();
+      // Insert callout + modules in place of the mock
+      const frag = document.createDocumentFragment();
+      while (wrap.firstChild) frag.appendChild(wrap.firstChild);
+      oldMock.parentNode.insertBefore(frag, oldMock);
+      oldMock.remove();
+    } else {
+      // No mock found but also no modules — append modules before the footnote
+      const wrap = document.createElement('div');
+      wrap.innerHTML = NEW_HUB_CALLOUT_HTML.trim() + NEW_HUB_MODULES_HTML.trim();
+      const foot = hubSection.querySelector('.foot-note');
+      const frag = document.createDocumentFragment();
+      while (wrap.firstChild) frag.appendChild(wrap.firstChild);
+      if (foot) hubSection.insertBefore(frag, foot); else hubSection.appendChild(frag);
+    }
+    // Update the footnote text if it's the old one
+    const footNote = hubSection.querySelector('.foot-note');
+    if (footNote && /operational front door for the team/i.test(footNote.textContent)) {
+      footNote.textContent = 'Hub is the team\u2019s daily front door. The public website (Section 3) is a separate surface; both share the FTP Brain (Section 1).';
+    }
+  }
+
+  // ---- Brain section: add LMS as 4th "Powers" card if missing ----
+  function migrateBrainCardsIfNeeded() {
+    const brainRow = board.querySelector('.brain-row');
+    if (!brainRow) return;
+    const grid = brainRow.querySelector('.grid-3, .grid-4');
+    if (!grid) return;
+    const hasLMS = Array.from(grid.querySelectorAll('.card-body'))
+      .some(el => /\bLMS\b/i.test(el.textContent));
+    if (hasLMS) return;
+    grid.classList.remove('grid-3');
+    grid.classList.add('grid-4');
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<div class="card amber"><div class="card-title"><span class="tag amber">Powers</span></div><div class="card-body">LMS course content, AI course recommendations, certifications context.</div></div>`;
+    const newCard = wrap.firstElementChild;
+    // Insert before the last card (which is typically the "Future" card)
+    const cards = grid.querySelectorAll(':scope > .card');
+    if (cards.length >= 1) {
+      grid.insertBefore(newCard, cards[cards.length - 1]);
+    } else {
+      grid.appendChild(newCard);
+    }
+  }
+
+  // ---- Online Courses swimlane: add discovery/merchandising extras block ----
+  function migrateCoursesSwimlaneIfNeeded() {
+    const lane = board.querySelector('.swimlane.courses');
+    if (!lane) return;
+    if (lane.querySelector(':scope > .lane-extras')) return;
+    const extras = document.createElement('div');
+    extras.className = 'lane-extras';
+    extras.innerHTML = `
+      <div class="extras-title">Discovery &amp; merchandising</div>
+      <ul>
+        <li>Catalog browsing &amp; filtering</li>
+        <li>AI course recommendations</li>
+        <li>Free books / discount bundles</li>
+      </ul>`;
+    const foot = lane.querySelector(':scope > .lane-foot');
+    if (foot) lane.insertBefore(extras, foot);
+    else lane.appendChild(extras);
+  }
+
+  // ---- Integration map: clean 3-arrow knowledge-feed diagram ----
+  const NEW_MAP_HTML = `
+    <svg viewBox="0 0 900 320" width="100%" height="320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FTP Brain knowledge feed diagram">
+      <defs>
+        <marker id="ar-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b8730f"/></marker>
+        <style>
+          .node { fill: #fff; stroke: #cdd0d7; stroke-width: 1.2; }
+          .nlabel { font: 600 14px ui-sans-serif, system-ui; fill: #1f2330; }
+          .nsub { font: 10px ui-sans-serif, system-ui; fill: #7a7f8c; letter-spacing: 0.08em; text-transform: uppercase; }
+          .nnote { font: 11px ui-sans-serif, system-ui; fill: #7a7f8c; }
+          .feed { stroke: #b8730f; stroke-width: 2; fill: none; marker-end: url(#ar-amber); }
+          .feedlabel { font: 600 10px ui-sans-serif, system-ui; fill: #b8730f; letter-spacing: 0.06em; text-transform: uppercase; }
+        </style>
+      </defs>
+      <g><rect class="node" x="40" y="120" width="200" height="80" rx="10" fill="#1f2330" stroke="#1f2330"/><text class="nsub" x="60" y="148" fill="#b8bdca">Knowledge layer</text><text class="nlabel" x="60" y="170" fill="#fff">FTP Brain</text><text class="nnote" x="60" y="188" fill="#c8ccd6">Content · SME · NFPA · Brand</text></g>
+      <g><rect class="node" x="600" y="30" width="240" height="70" rx="10"/><text class="nsub" x="620" y="56">Customer surface</text><text class="nlabel" x="620" y="76">Website</text><text class="nnote" x="620" y="93">Catalog · search · AI chat · pages</text></g>
+      <g><rect class="node" x="600" y="125" width="240" height="70" rx="10"/><text class="nsub" x="620" y="151">Learner surface</text><text class="nlabel" x="620" y="171">LMS</text><text class="nnote" x="620" y="188">Course content · AI help · certs</text></g>
+      <g><rect class="node" x="600" y="220" width="240" height="70" rx="10"/><text class="nsub" x="620" y="246">Internal surface</text><text class="nlabel" x="620" y="266">Admin Portal</text><text class="nnote" x="620" y="283">SOPs · "How" docs · brand assets</text></g>
+      <path class="feed" d="M 240 145 C 380 145, 460 70, 600 65"/>
+      <path class="feed" d="M 240 160 L 600 160"/>
+      <path class="feed" d="M 240 175 C 380 175, 460 250, 600 255"/>
+      <text class="feedlabel" x="285" y="125">Feeds</text>
+    </svg>
+    <p class="foot-note" style="margin-top:6px;">The FTP Brain is the single source of truth. It feeds three surfaces: the <strong style="color:#1f2330">Website</strong> (customer-facing), the <strong style="color:#1f2330">LMS</strong> (learner-facing), and the <strong style="color:#1f2330">Admin Portal</strong> (internal). Commerce, fulfillment, and reporting flows are detailed in the swimlanes above.</p>
+  `;
+
+  function migrateIntegrationMapIfNeeded() {
+    const mapWrap = board.querySelector('.map-wrap');
+    if (!mapWrap) return;
+    const svg = mapWrap.querySelector('svg');
+    if (!svg) return;
+    // The new clean map uses viewBox 900x320 and has no Shopify/monday/ShipStation nodes.
+    // If we detect any of those, the user is on an older messy version → replace.
+    const text = svg.textContent || '';
+    const isClean = /viewBox="0 0 900 320"/.test(svg.getAttribute('viewBox') ? `viewBox="${svg.getAttribute('viewBox')}"` : '') &&
+                    !/Shopify|monday\.com|ShipStation/.test(text);
+    if (isClean) return;
+    mapWrap.innerHTML = NEW_MAP_HTML.trim();
+  }
+
+  // ---- Insert LMS section + renumber Open Questions to 7 ----
+  const LMS_SECTION_HTML = `
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">6</span>
+        <h2 class="section-title">LMS — Platform Requirements</h2>
+        <p class="section-desc">Feeds the Online Courses flow · drives the LMS Timeline decision (see Q6)</p>
+      </div>
+      <div class="lms-grid">
+        <div class="lms-col needs">
+          <div class="lms-col-head"><h4>Needs</h4><span class="ltag">Must-have for MVP</span></div>
+          <ul class="lms-list">
+            <li>Courses (catalog + structure)</li>
+            <li>Timers / activity tracking</li>
+            <li>Customer portals (learner accounts)</li>
+            <li>SCORM compatibility</li>
+            <li>Audio content support</li>
+            <li>Engaging system / modern UX</li>
+            <li>AI help (in-course assistant)</li>
+            <li>Quiz / test / exam builder</li>
+            <li>Certification holder</li>
+            <li>Hold "Next" button until X seconds</li>
+            <li>Video content support</li>
+            <li>Adapt to new training models / theory</li>
+          </ul>
+        </div>
+        <div class="lms-col wants">
+          <div class="lms-col-head"><h4>Wants</h4><span class="ltag">Phase 2 / aspirational</span></div>
+          <ul class="lms-list">
+            <li>Anti-cheat software</li>
+            <li>AR / VR capabilities</li>
+            <li>AI smart-glasses connection</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lms-foot">
+        <div class="lms-note"><strong>Knowledge feed:</strong> Course content, AI recommendations, and certification context all source from the FTP Brain (Section 1).</div>
+        <div class="lms-note"><strong>Enrollment:</strong> Customer purchases on Shopify → auto-enrollment via LMS API (Section 3, swimlane B).</div>
+      </div>
+    </div>`;
+
+  function migrateLMSSectionIfNeeded() {
+    // Already present?
+    const titles = board.querySelectorAll('.section .section-title');
+    for (const t of titles) {
+      if (/LMS\s*—\s*Platform Requirements/i.test(t.textContent)) return;
+    }
+    // Find Customer Journey section to insert after
+    let journeySection = null;
+    for (const sec of board.querySelectorAll('.section')) {
+      const t = sec.querySelector('.section-title');
+      if (t && /Customer Experience/i.test(t.textContent)) {
+        journeySection = sec;
+        break;
+      }
+    }
+    if (!journeySection) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = LMS_SECTION_HTML.trim();
+    journeySection.parentNode.insertBefore(wrap.firstElementChild, journeySection.nextSibling);
+
+    // Renumber Open Questions from 6 → 7
+    for (const sec of board.querySelectorAll('.section')) {
+      const t = sec.querySelector('.section-title');
+      const n = sec.querySelector('.section-num');
+      if (t && n && /Open Questions/i.test(t.textContent) && n.textContent.trim() === '6') {
+        n.textContent = '7';
+      }
+    }
+  }
+
+  // ---- Hub iframe resize ----
+  function attachHubResize(root) {
+    root.querySelectorAll('.hub-resize button').forEach(btn => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', e => {
+        const h = parseInt(e.currentTarget.getAttribute('data-hub-height'), 10);
+        if (!h) return;
+        const iframe = e.currentTarget.closest('.hub-embed')?.querySelector('iframe');
+        if (iframe) iframe.style.height = h + 'px';
+      });
+    });
+  }
+
+  // ---- Toolbar actions ----
+  document.getElementById('btn-download').addEventListener('click', () => {
+    const docClone = document.documentElement.cloneNode(true);
+    docClone.querySelector('#toolbar')?.remove();
+    docClone.querySelectorAll('.add-btn, .remove-btn').forEach(b => b.remove());
+    docClone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    docClone.querySelectorAll('[spellcheck]').forEach(el => el.removeAttribute('spellcheck'));
+    docClone.querySelectorAll('.has-remove').forEach(el => el.classList.remove('has-remove'));
+    docClone.querySelectorAll('script').forEach(s => s.remove());
+    const html = '<!doctype html>\n' + docClone.outerHTML;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fire_tech_architecture_board.html';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 1000);
+  });
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    if (confirm('Discard all your local edits and reload the original board?')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      location.reload();
+    }
+  });
+
+  document.getElementById('btn-import').addEventListener('click', () => {
+    document.getElementById('file-import').click();
+  });
+  document.getElementById('file-import').addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      const incoming = doc.getElementById('board') || doc.querySelector('.board-wrap');
+      if (!incoming) {
+        alert('Could not find board content in that file.');
+        return;
+      }
+      if (!confirm('Replace the current board with the imported file? Your current edits will be overwritten.')) {
+        e.target.value = '';
+        return;
+      }
+      board.innerHTML = incoming.innerHTML;
+      // Reset and re-apply editing
+      board.querySelectorAll('.add-btn, .remove-btn').forEach(b => b.remove());
+      board.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      board.querySelectorAll('.has-remove').forEach(el => el.classList.remove('has-remove'));
+      makeTextEditable(board);
+      attachListControls(board);
+      attachHubResize(board);
+      scheduleSave();
+    } catch (err) {
+      alert('Could not import that file.');
+    }
+    e.target.value = '';
+  });
+
+  // ---- Initialize ----
+  loadFromStorage();
+  makeTextEditable(board);
+  attachListControls(board);
+  attachHubResize(board);
+
+  // Save on any input within the board
+  board.addEventListener('input', scheduleSave);
+
+  // Prevent Enter from creating a new <div> inside short labels — let it stay inline
+  board.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target;
+      if (target && target.matches && target.matches('.h, .q, .who, .jt, .jn, .jsys, .lbl, .val, .k, .v, .d, .title, .sys, .wt, .navitem, .ni, .navhead, .pill, .badge, .tag, .lane-head h4, .section-title, .section-desc, .card-title, .board-title, .board-sub, h1, h2, h3, h4')) {
+        e.preventDefault();
+        target.blur();
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
