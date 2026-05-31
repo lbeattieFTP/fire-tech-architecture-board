@@ -458,6 +458,50 @@
     padding: 2px 7px; border-radius: 999px;
   }
 
+  /* Unnumbered architecture hero section */
+  .arch-section .section-head { margin-bottom: 12px; }
+
+  /* ---------- Sprints ---------- */
+  .sprints { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sprint {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    border-top: 3px solid var(--purple); padding: 14px;
+    display: flex; flex-direction: column; gap: 10px; position: relative;
+  }
+  .sprint-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .sprint-title { font-size: 14px; font-weight: 700; }
+  .sprint-meta { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .sprint-date-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-mute); }
+  .sprint-date {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); padding: 2px 8px; border-radius: 999px;
+  }
+  .sprint-rock {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--purple-soft); border: 1px solid #d6c5ee;
+    border-radius: 8px; padding: 7px 10px;
+  }
+  .sprint-rock-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--purple); background: #fff; padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+  }
+  .sprint-rock-name { font-size: 12px; font-weight: 600; }
+  .sprint-goals { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .sprint-goals li {
+    font-size: 12px; padding: 7px 10px;
+    background: #fafbfc; border: 1px solid var(--line);
+    border-radius: 6px; position: relative;
+  }
+  .sprint-actions { margin-top: auto; display: flex; justify-content: flex-end; }
+  .copy-monday {
+    font: inherit; font-size: 11px; font-weight: 600;
+    color: var(--blue); background: var(--blue-soft);
+    border: 1px solid #c9d4f0; border-radius: 6px;
+    padding: 6px 11px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .copy-monday:hover { background: #fff; border-color: var(--blue); }
+  .copy-monday.copied { color: var(--green); background: var(--green-soft); border-color: #c5e0ce; }
+
   .admin-grid { display: grid; grid-template-columns: 1.1fr 2fr; gap: 14px; }
   .admin-side { background: #1f2330; color: #fff; border-radius: 12px; padding: 14px; }
   .admin-side h4 { margin: 0 0 4px 0; font-size: 14px; }
@@ -656,12 +700,12 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width: 1000px) {
-    .swimlanes, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules, .bg-systems {
+    .swimlanes, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules, .bg-systems, .sprints {
       grid-template-columns: 1fr 1fr !important;
     }
   }
   @media (max-width: 640px) {
-    .swimlanes, .grid-2, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules, .bg-systems {
+    .swimlanes, .grid-2, .grid-3, .brain-row, .admin-grid, .sticky-grid, .journey, .widget-row, .feeds, .kpi-row, .admin-features, .hub-modules, .bg-systems, .sprints {
       grid-template-columns: 1fr !important;
     }
     .hub-body { grid-template-columns: 1fr; }
@@ -701,6 +745,54 @@
       <span class="chip"><span class="dot green"></span>Fulfillment</span>
       <span class="chip"><span class="dot amber"></span>Knowledge / AI</span>
       <span class="chip"><span class="dot purple"></span>Open question</span>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE (unnumbered · top) -->
+  <div class="section arch-section" data-arch="claude-v1">
+    <div class="section-head">
+      <h2 class="section-title">Platform Architecture</h2>
+      <p class="section-desc">Database + IDP foundation · Claude is the brain · pushes &amp; pulls from every system</p>
+    </div>
+    <div class="map-wrap">
+      <div class="brain-graph" data-graph="claude-v1">
+        <div class="bg-origin">
+          <div class="bg-node bg-db">
+            <div class="bg-node-sub">Foundation · start here</div>
+            <div class="bg-node-name">Database</div>
+            <div class="bg-node-note">System of record for all platform data</div>
+          </div>
+          <div class="bg-flow">&#8644;</div>
+          <div class="bg-node bg-idp">
+            <div class="bg-node-sub">Identity Provider</div>
+            <div class="bg-node-name">IDP</div>
+            <div class="bg-node-note">Where users &amp; accounts are stored</div>
+          </div>
+        </div>
+
+        <div class="bg-down">&#9660;</div>
+
+        <div class="bg-brain">
+          <div class="bg-brain-sub">The Brain</div>
+          <div class="bg-brain-name">Claude</div>
+          <div class="bg-brain-note">Reads identity &amp; data from the Database and IDP, then connects out to every system — pushing and pulling data from each.</div>
+          <span class="bg-brain-pill">&#8644; Pushes &amp; pulls from every system</span>
+        </div>
+
+        <div class="bg-down">&#9660; &nbsp;push / pull&nbsp; &#9660;</div>
+
+        <div class="bg-systems">
+          <div class="bg-sys"><div class="bg-sys-name">Website</div><div class="bg-sys-desc">Catalog, search, pages, AI chat</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">LMS</div><div class="bg-sys-desc">Courses, enrollments, certifications</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">Shopify</div><div class="bg-sys-desc">Cart, checkout, payments</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">monday.com</div><div class="bg-sys-desc">Events &amp; operations boards</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">ShipStation</div><div class="bg-sys-desc">Fulfillment &amp; shipping</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">QuickBooks</div><div class="bg-sys-desc">Invoicing &amp; accounting</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">Mailchimp</div><div class="bg-sys-desc">Marketing &amp; lifecycle email</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+          <div class="bg-sys"><div class="bg-sys-name">Admin Portal</div><div class="bg-sys-desc">Internal ops &amp; CMS</div><span class="bg-sys-io">&#8644; push / pull</span></div>
+        </div>
+      </div>
+      <p class="foot-note" style="margin-top:10px;">The <strong style="color:#1f2330">Database</strong> and <strong style="color:#1f2330">IDP</strong> are the foundation — every user and account starts there. <strong style="color:#1f2330">Claude</strong> is the brain in the middle: it reads from that foundation, then pushes &amp; pulls data to and from every connected system. Hover a system for + / × to add or remove one; click any text to edit.</p>
     </div>
   </div>
 
@@ -853,46 +945,6 @@
       </div>
     </div>
 
-    <div class="map-wrap">
-      <div class="brain-graph" data-graph="claude-v1">
-        <div class="bg-origin">
-          <div class="bg-node bg-db">
-            <div class="bg-node-sub">Foundation · start here</div>
-            <div class="bg-node-name">Database</div>
-            <div class="bg-node-note">System of record for all platform data</div>
-          </div>
-          <div class="bg-flow">&#8644;</div>
-          <div class="bg-node bg-idp">
-            <div class="bg-node-sub">Identity Provider</div>
-            <div class="bg-node-name">IDP</div>
-            <div class="bg-node-note">Where users &amp; accounts are stored</div>
-          </div>
-        </div>
-
-        <div class="bg-down">&#9660;</div>
-
-        <div class="bg-brain">
-          <div class="bg-brain-sub">The Brain</div>
-          <div class="bg-brain-name">Claude</div>
-          <div class="bg-brain-note">Reads identity &amp; data from the Database and IDP, then connects out to every system — pushing and pulling data from each.</div>
-          <span class="bg-brain-pill">&#8644; Pushes &amp; pulls from every system</span>
-        </div>
-
-        <div class="bg-down">&#9660; &nbsp;push / pull&nbsp; &#9660;</div>
-
-        <div class="bg-systems">
-          <div class="bg-sys"><div class="bg-sys-name">Website</div><div class="bg-sys-desc">Catalog, search, pages, AI chat</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">LMS</div><div class="bg-sys-desc">Courses, enrollments, certifications</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">Shopify</div><div class="bg-sys-desc">Cart, checkout, payments</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">monday.com</div><div class="bg-sys-desc">Events &amp; operations boards</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">ShipStation</div><div class="bg-sys-desc">Fulfillment &amp; shipping</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">QuickBooks</div><div class="bg-sys-desc">Invoicing &amp; accounting</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">Mailchimp</div><div class="bg-sys-desc">Marketing &amp; lifecycle email</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-          <div class="bg-sys"><div class="bg-sys-name">Admin Portal</div><div class="bg-sys-desc">Internal ops &amp; CMS</div><span class="bg-sys-io">&#8644; push / pull</span></div>
-        </div>
-      </div>
-      <p class="foot-note" style="margin-top:10px;">The <strong style="color:#1f2330">Database</strong> and <strong style="color:#1f2330">IDP</strong> are the foundation — every user and account starts there. <strong style="color:#1f2330">Claude</strong> is the brain in the middle: it reads from that foundation, then pushes &amp; pulls data to and from every connected system. Hover a system for + / × to add or remove one; click any text to edit.</p>
-    </div>
   </div>
 
   <!-- 4. ADMIN PORTAL -->
@@ -1015,6 +1067,60 @@
     </div>
   </div>
 
+  <!-- 8. SPRINTS -->
+  <div class="section sprints-section">
+    <div class="section-head">
+      <span class="section-num">8</span>
+      <h2 class="section-title">Sprints — Goals &amp; Completion Dates</h2>
+      <p class="section-desc">Plan delivery in sprints · each sprint maps to a monday.com rock · its goals become subitems</p>
+    </div>
+    <div class="sprints">
+      <div class="sprint">
+        <div class="sprint-head">
+          <div class="sprint-title">Sprint 1 — Foundation</div>
+          <div class="sprint-meta">
+            <span class="sprint-date-label">Complete by</span>
+            <span class="sprint-date">2026-06-30</span>
+          </div>
+        </div>
+        <div class="sprint-rock">
+          <span class="sprint-rock-label">Rock</span>
+          <span class="sprint-rock-name">Stand up Database + IDP foundation</span>
+        </div>
+        <ul class="sprint-goals">
+          <li>Provision database as system of record</li>
+          <li>Set up IDP for users &amp; accounts</li>
+          <li>Connect Claude to read from both</li>
+        </ul>
+        <div class="sprint-actions">
+          <button class="copy-monday" type="button">Copy goals for monday.com</button>
+        </div>
+      </div>
+      <div class="sprint">
+        <div class="sprint-head">
+          <div class="sprint-title">Sprint 2 — Core Systems</div>
+          <div class="sprint-meta">
+            <span class="sprint-date-label">Complete by</span>
+            <span class="sprint-date">2026-07-31</span>
+          </div>
+        </div>
+        <div class="sprint-rock">
+          <span class="sprint-rock-label">Rock</span>
+          <span class="sprint-rock-name">Wire Claude to Website, LMS &amp; Shopify</span>
+        </div>
+        <ul class="sprint-goals">
+          <li>Website push / pull integration</li>
+          <li>LMS auto-enrollment sync</li>
+          <li>Shopify checkout + order sync</li>
+        </ul>
+        <div class="sprint-actions">
+          <button class="copy-monday" type="button">Copy goals for monday.com</button>
+        </div>
+      </div>
+    </div>
+    <p class="foot-note">Each sprint is a monday.com <strong>rock</strong>; its goals become <strong>subitems</strong>. Hover to add / remove sprints or goals; click any text to edit. Hit <strong>“Copy goals for monday.com”</strong>, then paste into the rock’s subitems — one subitem per line. The sprint’s completion date is the rock’s due date.</p>
+  </div>
+
   <p class="foot-note" style="text-align:center;">Editable workshop board · Sections are modular — each can be lifted into Figma, Notion, or a project brief without losing context.</p>
 </div>
 
@@ -1043,6 +1149,8 @@
     laneExtra: `<li>New item</li>`,
     hubModule: `<div class="card blue"><div class="module-name">New Module</div><div class="module-desc">Describe what this module does in the Hub.</div></div>`,
     graphSystem: `<div class="bg-sys"><div class="bg-sys-name">New system</div><div class="bg-sys-desc">What Claude does with it</div><span class="bg-sys-io">&#8644; push / pull</span></div>`,
+    sprint: `<div class="sprint"><div class="sprint-head"><div class="sprint-title">New Sprint</div><div class="sprint-meta"><span class="sprint-date-label">Complete by</span><span class="sprint-date">YYYY-MM-DD</span></div></div><div class="sprint-rock"><span class="sprint-rock-label">Rock</span><span class="sprint-rock-name">Name the rock this sprint delivers</span></div><ul class="sprint-goals"><li>First goal</li></ul><div class="sprint-actions"><button class="copy-monday" type="button">Copy goals for monday.com</button></div></div>`,
+    sprintGoal: `<li>New goal</li>`,
   };
 
   // ---- Lists that get an "Add" button + removable children ----
@@ -1060,6 +1168,8 @@
     { sel: '.lane-extras ul', tpl: 'laneExtra', label: '+ Add item',            childSel: 'li' },
     { sel: '.hub-modules',    tpl: 'hubModule', label: '+ Add Hub module',      childSel: '.card' },
     { sel: '.bg-systems',     tpl: 'graphSystem', label: '+ Add system',        childSel: '.bg-sys' },
+    { sel: '.sprints',        tpl: 'sprint',    label: '+ Add sprint',          childSel: '.sprint' },
+    { sel: '.sprint-goals',   tpl: 'sprintGoal', label: '+ Add goal',           childSel: 'li' },
   ];
 
   // ---- Make text leaves editable ----
@@ -1116,6 +1226,7 @@
             container.insertBefore(newEl, btn);
             makeTextEditable(newEl);
             attachRemove(newEl);
+            attachListControls(newEl); // wire up any nested lists (e.g. a new sprint's goals)
             // Focus first editable inside the new element
             const focusable = newEl.querySelector('[contenteditable="true"]');
             if (focusable) {
@@ -1201,7 +1312,81 @@
     try { migrateBrainCardsIfNeeded(); } catch(e) { console.warn('brain migration failed', e); }
     try { migrateCoursesSwimlaneIfNeeded(); } catch(e) { console.warn('courses migration failed', e); }
     try { migrateIntegrationMapIfNeeded(); } catch(e) { console.warn('map migration failed', e); }
+    try { migrateArchitectureToTopIfNeeded(); } catch(e) { console.warn('arch-top migration failed', e); }
     try { migrateLMSSectionIfNeeded(); } catch(e) { console.warn('lms migration failed', e); }
+    try { migrateSprintsSectionIfNeeded(); } catch(e) { console.warn('sprints migration failed', e); }
+  }
+
+  // ---- Move the architecture graph into its own unnumbered section at the top ----
+  function migrateArchitectureToTopIfNeeded() {
+    if (board.querySelector('.arch-section')) return;
+    const graph = board.querySelector('.brain-graph');
+    if (!graph) return;
+    const mapWrap = graph.closest('.map-wrap') || graph.parentElement;
+    if (!mapWrap) return;
+    const sec = document.createElement('div');
+    sec.className = 'section arch-section';
+    sec.setAttribute('data-arch', 'claude-v1');
+    sec.innerHTML = `
+      <div class="section-head">
+        <h2 class="section-title">Platform Architecture</h2>
+        <p class="section-desc">Database + IDP foundation · Claude is the brain · pushes &amp; pulls from every system</p>
+      </div>`;
+    sec.appendChild(mapWrap); // moves the existing map-wrap (graph + footnote) into the new section
+    const header = board.querySelector('.board-header');
+    if (header) board.insertBefore(sec, header.nextSibling);
+    else board.insertBefore(sec, board.firstChild);
+  }
+
+  // ---- Sprints section (goals + completion dates + copy-to-monday) ----
+  const SPRINTS_SECTION_HTML = `
+    <div class="section sprints-section">
+      <div class="section-head">
+        <span class="section-num">8</span>
+        <h2 class="section-title">Sprints — Goals &amp; Completion Dates</h2>
+        <p class="section-desc">Plan delivery in sprints · each sprint maps to a monday.com rock · its goals become subitems</p>
+      </div>
+      <div class="sprints">
+        <div class="sprint">
+          <div class="sprint-head">
+            <div class="sprint-title">Sprint 1 — Foundation</div>
+            <div class="sprint-meta"><span class="sprint-date-label">Complete by</span><span class="sprint-date">2026-06-30</span></div>
+          </div>
+          <div class="sprint-rock"><span class="sprint-rock-label">Rock</span><span class="sprint-rock-name">Stand up Database + IDP foundation</span></div>
+          <ul class="sprint-goals">
+            <li>Provision database as system of record</li>
+            <li>Set up IDP for users &amp; accounts</li>
+            <li>Connect Claude to read from both</li>
+          </ul>
+          <div class="sprint-actions"><button class="copy-monday" type="button">Copy goals for monday.com</button></div>
+        </div>
+        <div class="sprint">
+          <div class="sprint-head">
+            <div class="sprint-title">Sprint 2 — Core Systems</div>
+            <div class="sprint-meta"><span class="sprint-date-label">Complete by</span><span class="sprint-date">2026-07-31</span></div>
+          </div>
+          <div class="sprint-rock"><span class="sprint-rock-label">Rock</span><span class="sprint-rock-name">Wire Claude to Website, LMS &amp; Shopify</span></div>
+          <ul class="sprint-goals">
+            <li>Website push / pull integration</li>
+            <li>LMS auto-enrollment sync</li>
+            <li>Shopify checkout + order sync</li>
+          </ul>
+          <div class="sprint-actions"><button class="copy-monday" type="button">Copy goals for monday.com</button></div>
+        </div>
+      </div>
+      <p class="foot-note">Each sprint is a monday.com <strong>rock</strong>; its goals become <strong>subitems</strong>. Hover to add / remove sprints or goals; click any text to edit. Hit <strong>“Copy goals for monday.com”</strong>, then paste into the rock’s subitems — one subitem per line. The sprint’s completion date is the rock’s due date.</p>
+    </div>`;
+
+  function migrateSprintsSectionIfNeeded() {
+    if (board.querySelector('.sprints-section')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = SPRINTS_SECTION_HTML.trim();
+    const sec = wrap.firstElementChild;
+    // Insert as the last section, before the closing centered footnote if present
+    const footnotes = board.querySelectorAll(':scope > .foot-note');
+    const closing = footnotes[footnotes.length - 1];
+    if (closing) board.insertBefore(sec, closing);
+    else board.appendChild(sec);
   }
 
   // ---- Migration: convert any prior Hub variant into the modules list ----
@@ -1474,6 +1659,48 @@
     setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 1000);
   });
 
+  // ---- Copy a sprint's goals for monday.com subitems (one per line) ----
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+  }
+
+  board.addEventListener('click', e => {
+    const btn = e.target.closest('.copy-monday');
+    if (!btn) return;
+    e.preventDefault();
+    const sprint = btn.closest('.sprint');
+    if (!sprint) return;
+    const goals = Array.from(sprint.querySelectorAll('.sprint-goals li')).map(li => {
+      const clone = li.cloneNode(true);
+      clone.querySelectorAll('.remove-btn').forEach(b => b.remove());
+      return clone.textContent.trim();
+    }).filter(Boolean);
+    if (!goals.length) {
+      btn.textContent = 'No goals to copy';
+      setTimeout(() => { btn.textContent = 'Copy goals for monday.com'; }, 1600);
+      return;
+    }
+    const payload = goals.join('\n');
+    const showDone = () => {
+      btn.classList.add('copied');
+      btn.textContent = '✓ Copied — paste into subitems';
+      setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy goals for monday.com'; }, 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(payload).then(showDone).catch(() => { fallbackCopy(payload); showDone(); });
+    } else {
+      fallbackCopy(payload);
+      showDone();
+    }
+  });
+
   document.getElementById('btn-print').addEventListener('click', () => window.print());
 
   document.getElementById('btn-reset').addEventListener('click', () => {
@@ -1529,7 +1756,7 @@
   board.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       const target = e.target;
-      if (target && target.matches && target.matches('.h, .q, .who, .jt, .jn, .jsys, .lbl, .val, .k, .v, .d, .title, .sys, .wt, .navitem, .ni, .navhead, .pill, .badge, .tag, .bg-node-name, .bg-node-sub, .bg-brain-name, .bg-brain-sub, .bg-sys-name, .bg-sys-io, .bg-brain-pill, .lane-head h4, .section-title, .section-desc, .card-title, .board-title, .board-sub, h1, h2, h3, h4')) {
+      if (target && target.matches && target.matches('.h, .q, .who, .jt, .jn, .jsys, .lbl, .val, .k, .v, .d, .title, .sys, .wt, .navitem, .ni, .navhead, .pill, .badge, .tag, .bg-node-name, .bg-node-sub, .bg-brain-name, .bg-brain-sub, .bg-sys-name, .bg-sys-io, .bg-brain-pill, .sprint-title, .sprint-date, .sprint-date-label, .sprint-rock-name, .sprint-rock-label, .lane-head h4, .section-title, .section-desc, .card-title, .board-title, .board-sub, h1, h2, h3, h4')) {
         e.preventDefault();
         target.blur();
       }
