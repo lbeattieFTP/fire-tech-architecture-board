@@ -502,6 +502,47 @@
   .copy-monday:hover { background: #fff; border-color: var(--blue); }
   .copy-monday.copied { color: var(--green); background: var(--green-soft); border-color: #c5e0ce; }
 
+  /* "Added by Claude" marker badge */
+  .added-by {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: #fff; background: var(--accent);
+    padding: 1px 6px; border-radius: 999px;
+    vertical-align: middle; margin-left: 6px; white-space: nowrap;
+  }
+
+  /* ---------- Meeting walkthrough ---------- */
+  .wt-callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--amber-soft); border: 1px solid #ecd49a;
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+    font-size: 12px; color: var(--ink);
+  }
+  .wt-callout-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--amber); background: #fff; padding: 3px 7px; border-radius: 4px; flex-shrink: 0;
+  }
+  .wt-callout ul { margin: 6px 0 0; padding-left: 18px; }
+  .wt-callout li { margin: 2px 0; }
+  .wt-agenda { display: flex; flex-direction: column; gap: 8px; }
+  .wt-item {
+    display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: start;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; position: relative;
+  }
+  .wt-time {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px;
+    padding: 5px 6px; text-align: center; line-height: 1.25;
+  }
+  .wt-topic { font-size: 13px; font-weight: 700; }
+  .wt-notes { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .wt-notes ul { margin: 4px 0 0; padding-left: 16px; }
+  .wt-notes li { margin: 2px 0; }
+  .wt-decide { color: var(--green); font-weight: 700; }
+  .wt-watch { color: var(--accent); font-weight: 700; }
+  @media (max-width: 640px) { .wt-item { grid-template-columns: 1fr; } }
+
   .admin-grid { display: grid; grid-template-columns: 1.1fr 2fr; gap: 14px; }
   .admin-side { background: #1f2330; color: #fff; border-radius: 12px; padding: 14px; }
   .admin-side h4 { margin: 0 0 4px 0; font-size: 14px; }
@@ -1151,6 +1192,7 @@
     graphSystem: `<div class="bg-sys"><div class="bg-sys-name">New system</div><div class="bg-sys-desc">What Claude does with it</div><span class="bg-sys-io">&#8644; push / pull</span></div>`,
     sprint: `<div class="sprint"><div class="sprint-head"><div class="sprint-title">New Sprint</div><div class="sprint-meta"><span class="sprint-date-label">Complete by</span><span class="sprint-date">YYYY-MM-DD</span></div></div><div class="sprint-rock"><span class="sprint-rock-label">Rock</span><span class="sprint-rock-name">Name the rock this sprint delivers</span></div><ul class="sprint-goals"><li>First goal</li></ul><div class="sprint-actions"><button class="copy-monday" type="button">Copy goals for monday.com</button></div></div>`,
     sprintGoal: `<li>New goal</li>`,
+    wtItem: `<div class="wt-item"><div class="wt-time">0:00–0:00</div><div><div class="wt-topic">New agenda item</div><div class="wt-notes">Notes for this item.</div></div></div>`,
   };
 
   // ---- Lists that get an "Add" button + removable children ----
@@ -1170,6 +1212,7 @@
     { sel: '.bg-systems',     tpl: 'graphSystem', label: '+ Add system',        childSel: '.bg-sys' },
     { sel: '.sprints',        tpl: 'sprint',    label: '+ Add sprint',          childSel: '.sprint' },
     { sel: '.sprint-goals',   tpl: 'sprintGoal', label: '+ Add goal',           childSel: 'li' },
+    { sel: '.wt-agenda',      tpl: 'wtItem',    label: '+ Add agenda item',     childSel: '.wt-item' },
   ];
 
   // ---- Make text leaves editable ----
@@ -1315,6 +1358,161 @@
     try { migrateArchitectureToTopIfNeeded(); } catch(e) { console.warn('arch-top migration failed', e); }
     try { migrateLMSSectionIfNeeded(); } catch(e) { console.warn('lms migration failed', e); }
     try { migrateSprintsSectionIfNeeded(); } catch(e) { console.warn('sprints migration failed', e); }
+    try { migrateWalkthroughIfNeeded(); } catch(e) { console.warn('walkthrough migration failed', e); }
+    try { migrateJourneyBelowGraphicIfNeeded(); } catch(e) { console.warn('journey-move migration failed', e); }
+    try { migrateAddedQuestionsIfNeeded(); } catch(e) { console.warn('added-questions migration failed', e); }
+    try { migrateArchNeedsIfNeeded(); } catch(e) { console.warn('arch-needs migration failed', e); }
+    try { migrateLMSAddedNeedsIfNeeded(); } catch(e) { console.warn('lms-added migration failed', e); }
+    try { migrateJourneyGapNoteIfNeeded(); } catch(e) { console.warn('journey-note migration failed', e); }
+    try { migrateCrossRefsToNames(); } catch(e) { console.warn('crossref migration failed', e); }
+    try { renumberSectionsByOrder(); } catch(e) { console.warn('renumber migration failed', e); }
+  }
+
+  // ===== Alignment-meeting + gap migrations (Added by Claude) =====
+  const WALKTHROUGH_SECTION_HTML = `
+    <div class="section walkthrough-section" data-walkthrough="v1">
+      <div class="section-head">
+        <h2 class="section-title">Alignment Meeting — 1-Hour Walkthrough <span class="added-by">Added by Claude</span></h2>
+        <p class="section-desc">Facilitator guide for tomorrow · 60 minutes · leadership · engineering · design · operations</p>
+      </div>
+      <div class="wt-callout">
+        <span class="wt-callout-tag">Goal</span>
+        <div>
+          <strong>Align on one platform architecture</strong> — Claude as the brain over a Database + IDP foundation, pushing &amp; pulling to every system — and leave with an <strong>owner + date on every open decision</strong>.
+          <ul>
+            <li><strong>Outcome 1:</strong> Shared understanding of the architecture (the top graphic).</li>
+            <li><strong>Outcome 2:</strong> Source-of-truth decided per data type — not just customer identity.</li>
+            <li><strong>Outcome 3:</strong> Every Open Question has an owner and a due date — no "TBD".</li>
+            <li><strong>Outcome 4:</strong> Sprint 1 &amp; 2 rocks confirmed and pushed to monday.com.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="wt-agenda">
+        <div class="wt-item"><div class="wt-time">0:00–0:05</div><div><div class="wt-topic">1 · Welcome &amp; purpose</div><div class="wt-notes">Why we're here: agree on the architecture before we build. State the outcome we need by 1:00 — owners + dates on every decision. Quick round: each person names the one decision they need from this hour.</div></div></div>
+        <div class="wt-item"><div class="wt-time">0:05–0:15</div><div><div class="wt-topic">2 · The architecture at a glance — the top graphic</div><div class="wt-notes">Walk it left → right: <strong>Database</strong> (system of record) + <strong>IDP</strong> (users &amp; accounts) are the foundation; <strong>Claude</strong> is the brain that reads from them and pushes / pulls to every system.<ul><li><span class="wt-decide">Confirm:</span> everyone agrees the Database + IDP are the single foundation — apps don't each keep their own master copy.</li><li><span class="wt-watch">Watch-out:</span> Claude is a reasoning brain, not a data pipe — we still need an integration / orchestration layer (webhooks, queues, retries) for it to move data. Name who owns it → Q10.</li></ul></div></div></div>
+        <div class="wt-item"><div class="wt-time">0:15–0:25</div><div><div class="wt-topic">3 · Customer journey, end-to-end</div><div class="wt-notes">Walk Discover → Decide → Purchase → Enroll → Learn → Certify → Comply, tying each step to the system that serves it. <span class="wt-decide">Decide:</span> does this match reality for all three lines (events, online courses, deliverables)? Confirm the Compliance Tracker is a net-new build and the re-engagement loop back to Discover.</div></div></div>
+        <div class="wt-item"><div class="wt-time">0:25–0:37</div><div><div class="wt-topic">4 · Systems walkthrough</div><div class="wt-notes">Fast tour: the Hub (monday.com home), the Website's three flows, the Admin Portal, and the LMS needs / wants. Flag disagreements — don't solve them here; park each in Open Questions. <span class="wt-decide">Decide:</span> which systems are in scope for phase 1 vs later.</div></div></div>
+        <div class="wt-item"><div class="wt-time">0:37–0:52</div><div><div class="wt-topic">5 · Open questions &amp; decisions — the heart of the meeting</div><div class="wt-notes">Go question by question. For each, make the call or assign an owner + due date — nothing leaves as "TBD". Hit the blockers first: Identity (Q1), Source of truth per entity (Q9), Orchestration layer (Q10), Claude write guardrails (Q11). Capture decisions live in the Sprints section.</div></div></div>
+        <div class="wt-item"><div class="wt-time">0:52–0:58</div><div><div class="wt-topic">6 · Sprints &amp; monday.com hand-off</div><div class="wt-notes">Confirm Sprint 1 (Foundation) and Sprint 2 (Core Systems): rocks, owners, completion dates. Use "Copy goals for monday.com" on each sprint and paste as subitems on the rock. <span class="wt-decide">Decide:</span> who owns each rock, and are the dates realistic?</div></div></div>
+        <div class="wt-item"><div class="wt-time">0:58–1:00</div><div><div class="wt-topic">7 · Recap &amp; commitments</div><div class="wt-notes">Read back every decision with its owner and date. Confirm the next checkpoint. Close.</div></div></div>
+      </div>
+      <p class="foot-note">Timings are a guide — the Open Questions block (5) is the priority; protect its 15 minutes. Hover any row to add / remove agenda items; click any text to edit.</p>
+    </div>`;
+
+  function migrateWalkthroughIfNeeded() {
+    if (board.querySelector('.walkthrough-section')) return;
+    const arch = board.querySelector('.arch-section');
+    if (!arch) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = WALKTHROUGH_SECTION_HTML.trim();
+    board.insertBefore(wrap.firstElementChild, arch.nextElementSibling);
+  }
+
+  function findSectionByTitle(re) {
+    for (const sec of board.querySelectorAll('.section')) {
+      const t = sec.querySelector('.section-title');
+      if (t && re.test(t.textContent)) return sec;
+    }
+    return null;
+  }
+
+  function migrateJourneyBelowGraphicIfNeeded() {
+    const journey = findSectionByTitle(/Customer Experience/i);
+    if (!journey) return;
+    const anchor = board.querySelector('.walkthrough-section') || board.querySelector('.arch-section');
+    if (!anchor) return;
+    if (anchor.nextElementSibling === journey) return; // already directly below the graphic/walkthrough
+    board.insertBefore(journey, anchor.nextElementSibling);
+  }
+
+  const ADDED_QUESTIONS_HTML = `
+    <div class="sticky"><div class="h">Q9 · Source of Truth <span class="added-by">Added by Claude</span></div><div class="q">For each data type — customer, order, enrollment, certification, product / catalog — which ONE system is authoritative when Claude syncs? Q1 only covers customer identity.</div><div class="who">Owner: TBD · blocks every sync</div></div>
+    <div class="sticky"><div class="h">Q10 · Orchestration Layer <span class="added-by">Added by Claude</span></div><div class="q">Does Claude call each system's API directly, or do we need an integration layer (webhooks, queues, retries) that Claude drives? Who builds and owns it?</div><div class="who">Owner: Engineering</div></div>
+    <div class="sticky"><div class="h">Q11 · Claude Write Guardrails <span class="added-by">Added by Claude</span></div><div class="q">Does Claude write to production systems autonomously or with human approval? What's the audit log, rate / cost limit, and rollback plan for anything it writes?</div><div class="who">Owner: Eng + Leadership</div></div>
+    <div class="sticky"><div class="h">Q12 · Staff vs Customer Identity <span class="added-by">Added by Claude</span></div><div class="q">The IDP holds staff via M365 SSO — do customers live in the same IDP or a separate customer identity store? Extends Q1.</div><div class="who">Owner: IT</div></div>
+    <div class="sticky"><div class="h">Q13 · Data Migration &amp; Cutover <span class="added-by">Added by Claude</span></div><div class="q">How do we migrate existing accounts, enrollments, orders, and certs into the new Database / IDP without downtime or data loss? What's the cutover sequence?</div><div class="who">Owner: Eng + Ops</div></div>
+    <div class="sticky"><div class="h">Q14 · Integration Monitoring <span class="added-by">Added by Claude</span></div><div class="q">Who watches for sync failures? Need alerting, a health dashboard, and a reconciliation process for when systems drift out of agreement.</div><div class="who">Owner: IT + Eng</div></div>`;
+
+  function migrateAddedQuestionsIfNeeded() {
+    const sec = findSectionByTitle(/Open Questions/i);
+    if (!sec) return;
+    const grid = sec.querySelector('.sticky-grid');
+    if (!grid || grid.querySelector('.added-by')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = ADDED_QUESTIONS_HTML.trim();
+    while (wrap.firstElementChild) grid.appendChild(wrap.firstElementChild);
+  }
+
+  const ARCH_NEEDS_HTML = `
+    <div class="wt-callout" style="margin-top:14px;margin-bottom:0;">
+      <span class="wt-callout-tag">Gaps</span>
+      <div>
+        <strong>Before we build, close these <span class="added-by">Added by Claude</span></strong>
+        <ul>
+          <li><strong>Orchestration layer:</strong> Claude is the brain, not the pipe — it needs webhooks, queues &amp; retries to actually move data (Q10).</li>
+          <li><strong>Source of truth per entity:</strong> decide the authoritative system for each data type, not just customer identity (Q9).</li>
+          <li><strong>Sync direction per system:</strong> which connections are read-only vs read / write?</li>
+          <li><strong>Write guardrails:</strong> human-in-the-loop, audit log &amp; rollback for anything Claude writes (Q11).</li>
+          <li><strong>Monitoring &amp; reconciliation:</strong> detect and resolve drift between systems (Q14).</li>
+        </ul>
+      </div>
+    </div>`;
+
+  function migrateArchNeedsIfNeeded() {
+    const arch = board.querySelector('.arch-section');
+    if (!arch || arch.querySelector('.wt-callout')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = ARCH_NEEDS_HTML.trim();
+    arch.appendChild(wrap.firstElementChild);
+  }
+
+  const LMS_ADDED_HTML = `
+    <li>SSO / identity tie-in to the IDP (learner accounts) <span class="added-by">Added by Claude</span></li>
+    <li>Reporting &amp; data-export API (feeds the reporting layer) <span class="added-by">Added by Claude</span></li>
+    <li>Accessibility — WCAG 2.1 AA <span class="added-by">Added by Claude</span></li>`;
+
+  function migrateLMSAddedNeedsIfNeeded() {
+    const lms = findSectionByTitle(/LMS\s*—\s*Platform Requirements/i);
+    if (!lms) return;
+    const list = lms.querySelector('.lms-col.needs .lms-list');
+    if (!list || list.querySelector('.added-by')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = LMS_ADDED_HTML.trim();
+    while (wrap.firstElementChild) list.appendChild(wrap.firstElementChild);
+  }
+
+  const JOURNEY_NOTE_HTML = `<p class="foot-note"><span class="added-by">Added by Claude</span> Gap: the journey ends at Comply — add a <strong>re-engagement loop</strong> (renewal reminders &amp; targeted offers via Mailchimp + the Brain) that feeds back into Discover for repeat purchases.</p>`;
+
+  function migrateJourneyGapNoteIfNeeded() {
+    const journey = findSectionByTitle(/Customer Experience/i);
+    if (!journey || journey.querySelector('.foot-note .added-by')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = JOURNEY_NOTE_HTML.trim();
+    journey.appendChild(wrap.firstElementChild);
+  }
+
+  function migrateCrossRefsToNames() {
+    const subs = [
+      ['See Section 6, Q1', 'See Open Questions · Q1'],
+      ['(Section 3, swimlane B)', '(the Website section · Online Courses flow)'],
+      ['the FTP Brain (Section 1)', 'the FTP Brain (see the FTP Brain section)'],
+      ['public website (Section 3)', 'public website (see the Website section)'],
+      ['blocks Sections 3, 4, 5', 'blocks Website, Admin & Customer Journey'],
+      ['See Section 6 for the full spec.', 'See the LMS section for the full spec.'],
+    ];
+    board.querySelectorAll('.foot-note, .lms-note, .card-body, .sticky .q, .sticky .who').forEach(el => {
+      let html = el.innerHTML, changed = false;
+      subs.forEach(([a, b]) => { if (html.indexOf(a) !== -1) { html = html.split(a).join(b); changed = true; } });
+      if (changed) el.innerHTML = html;
+    });
+  }
+
+  function renumberSectionsByOrder() {
+    let n = 0;
+    board.querySelectorAll(':scope > .section').forEach(sec => {
+      const numEl = sec.querySelector(':scope > .section-head > .section-num');
+      if (numEl) { n++; numEl.textContent = String(n); }
+    });
   }
 
   // ---- Move the architecture graph into its own unnumbered section at the top ----
@@ -1756,7 +1954,7 @@
   board.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       const target = e.target;
-      if (target && target.matches && target.matches('.h, .q, .who, .jt, .jn, .jsys, .lbl, .val, .k, .v, .d, .title, .sys, .wt, .navitem, .ni, .navhead, .pill, .badge, .tag, .bg-node-name, .bg-node-sub, .bg-brain-name, .bg-brain-sub, .bg-sys-name, .bg-sys-io, .bg-brain-pill, .sprint-title, .sprint-date, .sprint-date-label, .sprint-rock-name, .sprint-rock-label, .lane-head h4, .section-title, .section-desc, .card-title, .board-title, .board-sub, h1, h2, h3, h4')) {
+      if (target && target.matches && target.matches('.h, .q, .who, .jt, .jn, .jsys, .lbl, .val, .k, .v, .d, .title, .sys, .wt, .navitem, .ni, .navhead, .pill, .badge, .tag, .bg-node-name, .bg-node-sub, .bg-brain-name, .bg-brain-sub, .bg-sys-name, .bg-sys-io, .bg-brain-pill, .sprint-title, .sprint-date, .sprint-date-label, .sprint-rock-name, .sprint-rock-label, .wt-time, .wt-topic, .lane-head h4, .section-title, .section-desc, .card-title, .board-title, .board-sub, h1, h2, h3, h4')) {
         e.preventDefault();
         target.blur();
       }
