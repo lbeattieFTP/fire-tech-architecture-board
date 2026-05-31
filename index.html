@@ -543,6 +543,20 @@
   .wt-watch { color: var(--accent); font-weight: 700; }
   @media (max-width: 640px) { .wt-item { grid-template-columns: 1fr; } }
 
+  /* ---------- Key points to hit ---------- */
+  .keypoints { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .keypoints li {
+    font-size: 13px; line-height: 1.5; padding: 10px 12px;
+    background: #fff; border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 8px;
+    position: relative;
+  }
+  .kp-ref {
+    font-size: 10px; font-weight: 700; color: var(--blue);
+    background: var(--blue-soft); padding: 1px 7px; border-radius: 999px;
+    margin-left: 4px; white-space: nowrap;
+  }
+
   .admin-grid { display: grid; grid-template-columns: 1.1fr 2fr; gap: 14px; }
   .admin-side { background: #1f2330; color: #fff; border-radius: 12px; padding: 14px; }
   .admin-side h4 { margin: 0 0 4px 0; font-size: 14px; }
@@ -1192,7 +1206,7 @@
     graphSystem: `<div class="bg-sys"><div class="bg-sys-name">New system</div><div class="bg-sys-desc">What Claude does with it</div><span class="bg-sys-io">&#8644; push / pull</span></div>`,
     sprint: `<div class="sprint"><div class="sprint-head"><div class="sprint-title">New Sprint</div><div class="sprint-meta"><span class="sprint-date-label">Complete by</span><span class="sprint-date">YYYY-MM-DD</span></div></div><div class="sprint-rock"><span class="sprint-rock-label">Rock</span><span class="sprint-rock-name">Name the rock this sprint delivers</span></div><ul class="sprint-goals"><li>First goal</li></ul><div class="sprint-actions"><button class="copy-monday" type="button">Copy goals for monday.com</button></div></div>`,
     sprintGoal: `<li>New goal</li>`,
-    wtItem: `<div class="wt-item"><div class="wt-time">0:00–0:00</div><div><div class="wt-topic">New agenda item</div><div class="wt-notes">Notes for this item.</div></div></div>`,
+    keypoint: `<li><strong>New point:</strong> describe the point to hit.</li>`,
   };
 
   // ---- Lists that get an "Add" button + removable children ----
@@ -1212,7 +1226,7 @@
     { sel: '.bg-systems',     tpl: 'graphSystem', label: '+ Add system',        childSel: '.bg-sys' },
     { sel: '.sprints',        tpl: 'sprint',    label: '+ Add sprint',          childSel: '.sprint' },
     { sel: '.sprint-goals',   tpl: 'sprintGoal', label: '+ Add goal',           childSel: 'li' },
-    { sel: '.wt-agenda',      tpl: 'wtItem',    label: '+ Add agenda item',     childSel: '.wt-item' },
+    { sel: '.keypoints',      tpl: 'keypoint',  label: '+ Add point',           childSel: 'li' },
   ];
 
   // ---- Make text leaves editable ----
@@ -1358,7 +1372,7 @@
     try { migrateArchitectureToTopIfNeeded(); } catch(e) { console.warn('arch-top migration failed', e); }
     try { migrateLMSSectionIfNeeded(); } catch(e) { console.warn('lms migration failed', e); }
     try { migrateSprintsSectionIfNeeded(); } catch(e) { console.warn('sprints migration failed', e); }
-    try { migrateWalkthroughIfNeeded(); } catch(e) { console.warn('walkthrough migration failed', e); }
+    try { migrateKeyPointsIfNeeded(); } catch(e) { console.warn('keypoints migration failed', e); }
     try { migrateJourneyBelowGraphicIfNeeded(); } catch(e) { console.warn('journey-move migration failed', e); }
     try { migrateAddedQuestionsIfNeeded(); } catch(e) { console.warn('added-questions migration failed', e); }
     try { migrateArchNeedsIfNeeded(); } catch(e) { console.warn('arch-needs migration failed', e); }
@@ -1369,43 +1383,37 @@
   }
 
   // ===== Alignment-meeting + gap migrations (Added by Claude) =====
-  const WALKTHROUGH_SECTION_HTML = `
-    <div class="section walkthrough-section" data-walkthrough="v1">
+  const KEYPOINTS_SECTION_HTML = `
+    <div class="section keypoints-section" data-keypoints="v1">
       <div class="section-head">
-        <h2 class="section-title">Alignment Meeting — 1-Hour Walkthrough <span class="added-by">Added by Claude</span></h2>
-        <p class="section-desc">Facilitator guide for tomorrow · 60 minutes · leadership · engineering · design · operations</p>
+        <h2 class="section-title">Alignment Meeting — Key Points to Hit <span class="added-by">Added by Claude</span></h2>
+        <p class="section-desc">The high-level points to align on tomorrow · ~1 hour</p>
       </div>
-      <div class="wt-callout">
-        <span class="wt-callout-tag">Goal</span>
-        <div>
-          <strong>Align on one platform architecture</strong> — Claude as the brain over a Database + IDP foundation, pushing &amp; pulling to every system — and leave with an <strong>owner + date on every open decision</strong>.
-          <ul>
-            <li><strong>Outcome 1:</strong> Shared understanding of the architecture (the top graphic).</li>
-            <li><strong>Outcome 2:</strong> Source-of-truth decided per data type — not just customer identity.</li>
-            <li><strong>Outcome 3:</strong> Every Open Question has an owner and a due date — no "TBD".</li>
-            <li><strong>Outcome 4:</strong> Sprint 1 &amp; 2 rocks confirmed and pushed to monday.com.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="wt-agenda">
-        <div class="wt-item"><div class="wt-time">0:00–0:05</div><div><div class="wt-topic">1 · Welcome &amp; purpose</div><div class="wt-notes">Why we're here: agree on the architecture before we build. State the outcome we need by 1:00 — owners + dates on every decision. Quick round: each person names the one decision they need from this hour.</div></div></div>
-        <div class="wt-item"><div class="wt-time">0:05–0:15</div><div><div class="wt-topic">2 · The architecture at a glance — the top graphic</div><div class="wt-notes">Walk it left → right: <strong>Database</strong> (system of record) + <strong>IDP</strong> (users &amp; accounts) are the foundation; <strong>Claude</strong> is the brain that reads from them and pushes / pulls to every system.<ul><li><span class="wt-decide">Confirm:</span> everyone agrees the Database + IDP are the single foundation — apps don't each keep their own master copy.</li><li><span class="wt-watch">Watch-out:</span> Claude is a reasoning brain, not a data pipe — we still need an integration / orchestration layer (webhooks, queues, retries) for it to move data. Name who owns it → Q10.</li></ul></div></div></div>
-        <div class="wt-item"><div class="wt-time">0:15–0:25</div><div><div class="wt-topic">3 · Customer journey, end-to-end</div><div class="wt-notes">Walk Discover → Decide → Purchase → Enroll → Learn → Certify → Comply, tying each step to the system that serves it. <span class="wt-decide">Decide:</span> does this match reality for all three lines (events, online courses, deliverables)? Confirm the Compliance Tracker is a net-new build and the re-engagement loop back to Discover.</div></div></div>
-        <div class="wt-item"><div class="wt-time">0:25–0:37</div><div><div class="wt-topic">4 · Systems walkthrough</div><div class="wt-notes">Fast tour: the Hub (monday.com home), the Website's three flows, the Admin Portal, and the LMS needs / wants. Flag disagreements — don't solve them here; park each in Open Questions. <span class="wt-decide">Decide:</span> which systems are in scope for phase 1 vs later.</div></div></div>
-        <div class="wt-item"><div class="wt-time">0:37–0:52</div><div><div class="wt-topic">5 · Open questions &amp; decisions — the heart of the meeting</div><div class="wt-notes">Go question by question. For each, make the call or assign an owner + due date — nothing leaves as "TBD". Hit the blockers first: Identity (Q1), Source of truth per entity (Q9), Orchestration layer (Q10), Claude write guardrails (Q11). Capture decisions live in the Sprints section.</div></div></div>
-        <div class="wt-item"><div class="wt-time">0:52–0:58</div><div><div class="wt-topic">6 · Sprints &amp; monday.com hand-off</div><div class="wt-notes">Confirm Sprint 1 (Foundation) and Sprint 2 (Core Systems): rocks, owners, completion dates. Use "Copy goals for monday.com" on each sprint and paste as subitems on the rock. <span class="wt-decide">Decide:</span> who owns each rock, and are the dates realistic?</div></div></div>
-        <div class="wt-item"><div class="wt-time">0:58–1:00</div><div><div class="wt-topic">7 · Recap &amp; commitments</div><div class="wt-notes">Read back every decision with its owner and date. Confirm the next checkpoint. Close.</div></div></div>
-      </div>
-      <p class="foot-note">Timings are a guide — the Open Questions block (5) is the priority; protect its 15 minutes. Hover any row to add / remove agenda items; click any text to edit.</p>
+      <ul class="keypoints">
+        <li><strong>The foundation:</strong> agree the Database + IDP are the single source of truth — apps don't each keep their own master copy. Claude reads from them and pushes / pulls to every system.</li>
+        <li><strong>Claude is the brain, not the pipe:</strong> we need an orchestration / integration layer (webhooks, queues, retries) for it to move data — and an owner for it. <span class="kp-ref">Q10</span></li>
+        <li><strong>Source of truth per data type:</strong> decide the authoritative system for customer, order, enrollment, certification &amp; catalog — not just customer identity. <span class="kp-ref">Q1 · Q9</span></li>
+        <li><strong>Guardrails on Claude's writes:</strong> human-in-the-loop, audit log &amp; rollback for anything it writes to production. <span class="kp-ref">Q11</span></li>
+        <li><strong>Customer journey holds up:</strong> confirm it works for all three lines (events, online courses, deliverables), including the Compliance Tracker build and a re-engagement loop.</li>
+        <li><strong>Identity, security &amp; migration:</strong> staff vs customer identity, SSO &amp; PII, and how we move existing data into the new platform without downtime. <span class="kp-ref">Q2 · Q12 · Q13</span></li>
+        <li><strong>Monitoring:</strong> who watches for sync failures and reconciles drift between systems. <span class="kp-ref">Q14</span></li>
+        <li><strong>Decisions &amp; ownership:</strong> every Open Question leaves with an owner + due date — no "TBD".</li>
+        <li><strong>Sprints:</strong> confirm Sprint 1 &amp; 2 rocks, owners and dates; push the goals to monday.com.</li>
+      </ul>
+      <p class="foot-note">Use these as the agenda — hit each point, capture the decision + owner. Hover any point to add / remove; click any text to edit.</p>
     </div>`;
 
-  function migrateWalkthroughIfNeeded() {
-    if (board.querySelector('.walkthrough-section')) return;
+  function migrateKeyPointsIfNeeded() {
+    if (board.querySelector('.keypoints-section')) return;
     const arch = board.querySelector('.arch-section');
     if (!arch) return;
     const wrap = document.createElement('div');
-    wrap.innerHTML = WALKTHROUGH_SECTION_HTML.trim();
-    board.insertBefore(wrap.firstElementChild, arch.nextElementSibling);
+    wrap.innerHTML = KEYPOINTS_SECTION_HTML.trim();
+    const newSec = wrap.firstElementChild;
+    // Replace an older detailed walkthrough in place if one exists; else insert below the graphic.
+    const oldWalk = board.querySelector('.walkthrough-section');
+    if (oldWalk) oldWalk.replaceWith(newSec);
+    else board.insertBefore(newSec, arch.nextElementSibling);
   }
 
   function findSectionByTitle(re) {
@@ -1419,7 +1427,7 @@
   function migrateJourneyBelowGraphicIfNeeded() {
     const journey = findSectionByTitle(/Customer Experience/i);
     if (!journey) return;
-    const anchor = board.querySelector('.walkthrough-section') || board.querySelector('.arch-section');
+    const anchor = board.querySelector('.keypoints-section') || board.querySelector('.arch-section');
     if (!anchor) return;
     if (anchor.nextElementSibling === journey) return; // already directly below the graphic/walkthrough
     board.insertBefore(journey, anchor.nextElementSibling);
