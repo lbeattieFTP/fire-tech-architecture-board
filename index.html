@@ -1179,11 +1179,34 @@
   <p class="foot-note" style="text-align:center;">Editable workshop board · Sections are modular — each can be lifted into Figma, Notion, or a project brief without losing context.</p>
 </div>
 
+<!-- Firebase (Realtime Database) for shared, live saving -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script>
 (function() {
   'use strict';
 
   const STORAGE_KEY = 'ft-board-v1';
+
+  // ===== Shared live saving via Firebase Realtime Database =====
+  // PASTE YOUR FIREBASE WEB CONFIG BELOW (Project settings → General → Your apps → SDK setup).
+  // These values are SAFE to be public. Until filled in, the board falls back to local-only saving.
+  const firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",   // e.g. https://your-project-default-rtdb.firebaseio.com
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+  };
+  const SYNC_PATH = 'board';
+  const clientId = Math.random().toString(36).slice(2) + '-' + Date.now();
+  let fbRef = null;
+  let applyingRemote = false;   // true while we're writing remote data into the DOM
+  let lastSyncedHtml = null;    // last html we sent or received, to avoid redundant work
+  let pendingRemoteHtml = null; // remote update deferred because the user was typing
+  let syncReady = false;
   const board = document.getElementById('board');
   const statusEl = document.getElementById('save-status');
 
@@ -1344,14 +1367,82 @@
     statusEl.classList.remove('saved');
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
+      let html = null;
       try {
-        localStorage.setItem(STORAGE_KEY, getCleanHTML());
-        statusEl.textContent = 'All changes saved';
+        html = getCleanHTML();
+        localStorage.setItem(STORAGE_KEY, html);
+        statusEl.textContent = syncReady ? 'All changes saved · synced' : 'All changes saved';
         statusEl.classList.add('saved');
       } catch (err) {
         statusEl.textContent = 'Save failed (storage full?)';
       }
+      if (html !== null) pushRemote(html);
     }, 450);
+  }
+
+  // ===== Firebase sync helpers =====
+  function isUserEditing() {
+    const a = document.activeElement;
+    return !!(a && board.contains(a) && a.getAttribute && a.getAttribute('contenteditable') === 'true');
+  }
+
+  function pushRemote(html) {
+    if (!fbRef || applyingRemote) return;        // don't echo a remote update back out
+    if (html === lastSyncedHtml) return;          // nothing new
+    lastSyncedHtml = html;
+    fbRef.set({ html: html, ts: Date.now(), writer: clientId })
+      .catch(err => console.warn('Shared save failed:', err));
+  }
+
+  function applyRemote(html) {
+    // Never overwrite while someone is mid-edit; stash it and apply on blur.
+    if (isUserEditing()) { pendingRemoteHtml = html; return; }
+    applyingRemote = true;
+    try {
+      board.innerHTML = html;
+      board.querySelectorAll('.add-btn, .remove-btn').forEach(b => b.remove());
+      board.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      board.querySelectorAll('.has-remove').forEach(el => el.classList.remove('has-remove'));
+      runMigrations();
+      makeTextEditable(board);
+      attachListControls(board);
+      attachHubResize(board);
+      try { localStorage.setItem(STORAGE_KEY, getCleanHTML()); } catch (e) {}
+    } finally {
+      applyingRemote = false;
+    }
+  }
+
+  function initSharedSync() {
+    if (!firebaseConfig.databaseURL || !window.firebase) return; // not configured → local-only
+    try {
+      firebase.initializeApp(firebaseConfig);
+      fbRef = firebase.database().ref(SYNC_PATH);
+      fbRef.on('value', snap => {
+        const val = snap.val();
+        if (!val || !val.html) {            // empty DB → seed it with what we have now
+          try { pushRemote(getCleanHTML()); } catch (e) {}
+          syncReady = true;
+          return;
+        }
+        syncReady = true;
+        if (val.writer === clientId) return; // our own write echoing back
+        if (val.html === lastSyncedHtml) return;
+        lastSyncedHtml = val.html;
+        applyRemote(val.html);
+      });
+      // When the user finishes editing, apply any update that arrived while they typed.
+      board.addEventListener('focusout', () => {
+        setTimeout(() => {
+          if (pendingRemoteHtml !== null && !isUserEditing()) {
+            const h = pendingRemoteHtml; pendingRemoteHtml = null;
+            applyRemote(h);
+          }
+        }, 150);
+      });
+    } catch (err) {
+      console.warn('Shared sync init failed (using local-only):', err);
+    }
   }
 
   function loadFromStorage() {
@@ -1957,6 +2048,9 @@
 
   // Save on any input within the board
   board.addEventListener('input', scheduleSave);
+
+  // Connect shared live saving (no-op until Firebase config is filled in)
+  initSharedSync();
 
   // Prevent Enter from creating a new <div> inside short labels — let it stay inline
   board.addEventListener('keydown', e => {
